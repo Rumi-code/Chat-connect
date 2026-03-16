@@ -1,0 +1,16 @@
+packages:
+  "framer-motion": "For fluid message animations and page transitions"
+  "date-fns": "For precise, human-readable message timestamp formatting"
+  "react-hook-form": "For robust form state management in chat and modals"
+  "@hookform/resolvers": "For Zod schema validation with react-hook-form"
+  "zod": "For strict runtime validation of forms and states"
+
+images:
+  - path: "artifacts/chat-app/public/images/welcome-bg.png"
+    description: "A beautiful, abstract 3D geometric background featuring soft gradient meshes in deep indigo, violet, and very faint pastel blue. It feels modern, premium, and calm, perfect for a high-end web app landing page. Smooth lighting, 8k resolution, minimalist."
+    aspect_ratio: "16:9"
+
+notes:
+  - "The app uses polling every 2 seconds via React Query refetchInterval to simulate real-time chat."
+  - "Username is stored in localStorage and checked before allowing access to the main chat interface."
+  - "Sidebar is styled dynamically using custom CSS variables to ensure a sleek dark mode appearance while the main chat area remains light and readable."
