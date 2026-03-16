@@ -1,130 +1,131 @@
-import { Link } from "wouter";
-import { Hash, LogOut, MessageSquareText, Search } from "lucide-react";
-import { useListRooms } from "@workspace/api-client-react";
-
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-} from "@/components/ui/sidebar";
-import { Input } from "@/components/ui/input";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Link, useLocation } from "wouter";
+import { Bot, Hash, LogOut, Plus, MessageSquare } from "lucide-react";
+import { useListConversations, useListOpenaiConversations, useCreateOpenaiConversation } from "@workspace/api-client-react";
+import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { CreateRoomDialog } from "./create-room-dialog";
+import { useAuth } from "@/hooks/use-auth";
+import { AddContactDialog } from "./add-contact-dialog";
+import { CreateConversationDialog } from "./create-conversation-dialog";
+import { cn } from "@/lib/utils";
 
-interface AppSidebarProps {
-  username: string;
-  activeRoomId: number | null;
-  onLogout: () => void;
-}
+export function AppSidebar() {
+  const { user, logout } = useAuth();
+  const [location, setLocation] = useLocation();
+  
+  const { data: convos = [] } = useListConversations({ userId: user?.id ?? 0 }, { query: { refetchInterval: 5000, enabled: !!user } });
+  const { data: aiChats = [] } = useListOpenaiConversations({ query: { enabled: !!user } });
+  const createAiChat = useCreateOpenaiConversation();
 
-export function AppSidebar({ username, activeRoomId, onLogout }: AppSidebarProps) {
-  // Poll rooms every 10s to see if new ones were created by others
-  const { data: rooms = [], isLoading } = useListRooms({
-    query: { refetchInterval: 10000 },
-  });
+  const dms = convos.filter(c => c.type === "dm");
+  const groups = convos.filter(c => c.type === "group");
+
+  const handleNewAiChat = async () => {
+    const res = await createAiChat.mutateAsync({ data: { title: "New AI Chat" } });
+    setLocation(`/ai/${res.id}`);
+  };
+
+  const getOtherUser = (members: any[]) => members.find(m => m.id !== user?.id) || members[0];
 
   return (
-    <Sidebar className="border-r-0 dark">
-      <SidebarHeader className="p-4 pt-6 pb-2">
-        <div className="flex items-center gap-3 px-2 mb-6">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-lg shadow-primary/20">
-            <MessageSquareText className="h-5 w-5" />
+    <div className="w-72 bg-sidebar flex flex-col h-full border-r border-white/5 relative z-10 shrink-0">
+      {/* Header Profile */}
+      <div className="h-20 px-6 flex items-center gap-4 border-b border-white/5">
+        <Avatar className="h-11 w-11 shadow-lg border-2 border-white/10">
+          <div className="w-full h-full flex items-center justify-center text-white font-bold text-lg" style={{ backgroundColor: user?.avatarColor }}>
+            {user?.displayName?.charAt(0).toUpperCase()}
           </div>
-          <div>
-            <h1 className="text-xl font-display font-bold tracking-tight text-sidebar-foreground">ChatApp</h1>
-            <p className="text-xs text-sidebar-foreground/60 font-medium">Real-time messaging</p>
-          </div>
+        </Avatar>
+        <div className="flex-1 min-w-0">
+          <h2 className="font-display font-bold text-base truncate">{user?.displayName}</h2>
+          <p className="text-xs text-muted-foreground truncate">@{user?.username}</p>
         </div>
+      </div>
 
-        <div className="relative mb-2">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-sidebar-foreground/40" />
-          <Input 
-            placeholder="Search rooms..." 
-            className="pl-9 bg-sidebar-accent/50 border-transparent focus-visible:ring-1 focus-visible:ring-sidebar-ring text-sidebar-foreground placeholder:text-sidebar-foreground/40 rounded-xl"
-          />
-        </div>
-      </SidebarHeader>
-
-      <SidebarContent className="px-2">
-        <SidebarGroup>
-          <div className="flex items-center justify-between px-2 py-2">
-            <SidebarGroupLabel className="px-0 py-0 h-auto text-xs uppercase tracking-wider font-semibold text-sidebar-foreground/50">
-              Channels
-            </SidebarGroupLabel>
-          </div>
-          <SidebarGroupContent>
-            {isLoading && rooms.length === 0 ? (
-              <div className="px-4 py-8 text-center text-sidebar-foreground/40 text-sm">
-                Loading rooms...
-              </div>
-            ) : (
-              <SidebarMenu>
-                {rooms.map((room) => {
-                  const isActive = room.id === activeRoomId;
-                  return (
-                    <SidebarMenuItem key={room.id}>
-                      <SidebarMenuButton 
-                        asChild 
-                        isActive={isActive}
-                        className={`rounded-lg transition-all duration-200 ${
-                          isActive 
-                            ? 'bg-primary text-primary-foreground font-medium shadow-md shadow-primary/10' 
-                            : 'text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent'
-                        }`}
-                      >
-                        <Link href={`/rooms/${room.id}`}>
-                          <Hash className={`h-4 w-4 mr-2 ${isActive ? 'opacity-100' : 'opacity-50'}`} />
-                          <span className="truncate">{room.name}</span>
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  );
-                })}
-              </SidebarMenu>
-            )}
-          </SidebarGroupContent>
-        </SidebarGroup>
+      <div className="flex-1 overflow-y-auto chat-scroll p-4 space-y-8">
         
-        <div className="px-4 mt-2">
-          <CreateRoomDialog />
-        </div>
-      </SidebarContent>
-
-      <SidebarFooter className="p-4 border-t border-sidebar-border/50">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3 overflow-hidden">
-            <Avatar className="h-9 w-9 border-2 border-sidebar-border bg-sidebar-accent text-sidebar-foreground">
-              <AvatarFallback className="bg-transparent font-semibold">
-                {username.substring(0, 2).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-            <div className="truncate">
-              <p className="text-sm font-semibold text-sidebar-foreground truncate">{username}</p>
-              <p className="text-xs text-green-400 font-medium flex items-center">
-                <span className="w-1.5 h-1.5 rounded-full bg-green-400 mr-1.5 animate-pulse"></span>
-                Online
-              </p>
-            </div>
-          </div>
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            onClick={onLogout}
-            className="text-sidebar-foreground/60 hover:text-destructive hover:bg-destructive/10 shrink-0"
-            title="Sign out"
-          >
-            <LogOut className="h-4 w-4" />
+        {/* Actions Row */}
+        <div className="flex items-center justify-between bg-white/5 p-2 rounded-2xl border border-white/5">
+          <AddContactDialog />
+          <div className="w-[1px] h-6 bg-white/10" />
+          <CreateConversationDialog />
+          <div className="w-[1px] h-6 bg-white/10" />
+          <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-white/5 text-primary" onClick={handleNewAiChat}>
+            <Bot className="h-4 w-4" />
           </Button>
         </div>
-      </SidebarFooter>
-    </Sidebar>
+
+        {/* Direct Messages */}
+        <div className="space-y-2">
+          <h3 className="text-xs uppercase tracking-wider font-semibold text-muted-foreground px-2">Direct Messages</h3>
+          <div className="space-y-1">
+            {dms.length === 0 && <p className="text-xs text-white/30 px-2 italic">No messages yet</p>}
+            {dms.map(c => {
+              const isActive = location === `/c/${c.id}`;
+              const other = getOtherUser(c.members);
+              return (
+                <Link key={c.id} href={`/c/${c.id}`} className={cn("flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all border", isActive ? "bg-primary/20 border-primary/30 shadow-inner" : "hover:bg-white/5 border-transparent")}>
+                  <Avatar className="h-9 w-9">
+                    <div className="w-full h-full flex items-center justify-center text-white text-sm font-bold" style={{ backgroundColor: other?.avatarColor }}>{other?.displayName.charAt(0).toUpperCase()}</div>
+                  </Avatar>
+                  <div className="flex-1 min-w-0">
+                    <p className={cn("text-sm truncate", isActive ? "font-semibold text-primary-foreground" : "font-medium")}>{other?.displayName}</p>
+                    <p className="text-xs text-muted-foreground truncate">{c.lastMessage?.content || "Say hi!"}</p>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Groups */}
+        <div className="space-y-2">
+          <h3 className="text-xs uppercase tracking-wider font-semibold text-muted-foreground px-2">Groups</h3>
+          <div className="space-y-1">
+            {groups.length === 0 && <p className="text-xs text-white/30 px-2 italic">No groups yet</p>}
+            {groups.map(c => {
+              const isActive = location === `/c/${c.id}`;
+              return (
+                <Link key={c.id} href={`/c/${c.id}`} className={cn("flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all border", isActive ? "bg-primary/20 border-primary/30 shadow-inner" : "hover:bg-white/5 border-transparent")}>
+                  <div className={cn("h-9 w-9 rounded-full flex items-center justify-center text-sm font-bold", isActive ? "bg-primary text-white" : "bg-white/10 text-muted-foreground")}>
+                    <Hash className="w-4 h-4" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className={cn("text-sm truncate", isActive ? "font-semibold text-primary-foreground" : "font-medium")}>{c.name || "Unnamed Group"}</p>
+                    <p className="text-xs text-muted-foreground truncate">{c.members.length} members</p>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* AI Assistant */}
+        <div className="space-y-2">
+          <h3 className="text-xs uppercase tracking-wider font-semibold text-muted-foreground px-2">AI Agents</h3>
+          <div className="space-y-1">
+            {aiChats.map(c => {
+              const isActive = location === `/ai/${c.id}`;
+              return (
+                <Link key={c.id} href={`/ai/${c.id}`} className={cn("flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all border", isActive ? "bg-accent/20 border-accent/30 shadow-inner" : "hover:bg-white/5 border-transparent")}>
+                  <div className={cn("h-9 w-9 rounded-full flex items-center justify-center text-sm font-bold", isActive ? "bg-accent text-white" : "bg-white/10 text-muted-foreground")}>
+                    <Bot className="w-5 h-5" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className={cn("text-sm truncate", isActive ? "font-semibold text-accent-foreground" : "font-medium")}>{c.title}</p>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+
+      </div>
+
+      <div className="p-4 border-t border-white/5">
+        <Button variant="ghost" className="w-full justify-start text-muted-foreground hover:text-destructive hover:bg-destructive/10" onClick={logout}>
+          <LogOut className="mr-3 h-5 w-5" /> Sign Out
+        </Button>
+      </div>
+    </div>
   );
 }

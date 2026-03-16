@@ -11,16 +11,21 @@
   "dependencies": {
     "@workspace/db": "workspace:*",
     "@workspace/api-zod": "workspace:*",
+    "@workspace/integrations-openai-ai-server": "workspace:*",
     "drizzle-orm": "catalog:",
     "express": "^5",
     "cookie-parser": "^1.4.7",
-    "cors": "^2"
+    "cors": "^2",
+    "@google-cloud/storage": "^7.15.2",
+    "google-auth-library": "^9.15.1",
+    "ws": "^8.18.2"
   },
   "devDependencies": {
     "@types/node": "catalog:",
     "@types/express": "^5.0.6",
     "@types/cors": "^2.8.19",
     "@types/cookie-parser": "^1.4.10",
+    "@types/ws": "^8.5.14",
     "esbuild": "^0.27.3",
     "tsx": "catalog:"
   }

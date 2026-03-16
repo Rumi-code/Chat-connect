@@ -2,24 +2,31 @@ openapi: 3.1.0
 info:
   title: Api
   version: 0.1.0
-  description: Chat App API
+  description: Private Chat App API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: users
+    description: User management
+  - name: contacts
+    description: Contacts and friend requests
+  - name: conversations
+    description: Private and group conversations
   - name: messages
-    description: Chat message operations
-  - name: rooms
-    description: Chat room operations
+    description: Chat messages
+  - name: openai
+    description: OpenAI AI chat operations
+  - name: Storage
+    description: Object storage upload and serving endpoints.
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -27,49 +34,161 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
-  /rooms:
-    get:
-      operationId: listRooms
-      tags: [rooms]
-      summary: List chat rooms
-      responses:
-        "200":
-          description: List of rooms
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Room"
+
+  /users:
     post:
-      operationId: createRoom
-      tags: [rooms]
-      summary: Create a chat room
+      operationId: createOrGetUser
+      tags: [users]
+      summary: Create or get a user by username
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/CreateRoomInput"
+              $ref: "#/components/schemas/CreateUserInput"
       responses:
-        "201":
-          description: Room created
+        "200":
+          description: User found or created
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Room"
-  /rooms/{roomId}/messages:
+                $ref: "#/components/schemas/User"
+
+  /users/search:
     get:
-      operationId: getMessages
-      tags: [messages]
-      summary: Get messages in a room
+      operationId: searchUsers
+      tags: [users]
+      summary: Search users by username
       parameters:
-        - name: roomId
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Matching users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+
+  /users/{userId}/contacts:
+    get:
+      operationId: getContacts
+      tags: [contacts]
+      summary: Get user's contacts
+      parameters:
+        - name: userId
           in: path
           required: true
           schema:
             type: integer
-        - name: limit
+      responses:
+        "200":
+          description: List of contacts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Contact"
+    post:
+      operationId: addContact
+      tags: [contacts]
+      summary: Add a contact
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddContactInput"
+      responses:
+        "201":
+          description: Contact added
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Contact"
+
+  /users/{userId}/contacts/{contactId}:
+    delete:
+      operationId: removeContact
+      tags: [contacts]
+      summary: Remove a contact
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: contactId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Contact removed
+
+  /conversations:
+    get:
+      operationId: listConversations
+      tags: [conversations]
+      summary: List conversations for a user
+      parameters:
+        - name: userId
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of conversations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Conversation"
+    post:
+      operationId: createConversation
+      tags: [conversations]
+      summary: Create a DM or group conversation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateConversationInput"
+      responses:
+        "201":
+          description: Conversation created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Conversation"
+
+  /conversations/{conversationId}/messages:
+    get:
+      operationId: listMessages
+      tags: [messages]
+      summary: Get messages in a conversation
+      parameters:
+        - name: conversationId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: before
           in: query
           required: false
           schema:
@@ -82,13 +201,13 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Message"
+                  $ref: "#/components/schemas/ChatMessage"
     post:
-      operationId: sendMessage
+      operationId: sendChatMessage
       tags: [messages]
-      summary: Send a message to a room
+      summary: Send a message in a conversation
       parameters:
-        - name: roomId
+        - name: conversationId
           in: path
           required: true
           schema:
@@ -98,14 +217,203 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/SendMessageInput"
+              $ref: "#/components/schemas/SendChatMessageInput"
       responses:
         "201":
           description: Message sent
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Message"
+                $ref: "#/components/schemas/ChatMessage"
+
+  /openai/conversations:
+    get:
+      operationId: listOpenaiConversations
+      tags: [openai]
+      summary: List all AI conversations
+      responses:
+        "200":
+          description: List of conversations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/OpenaiConversation"
+    post:
+      operationId: createOpenaiConversation
+      tags: [openai]
+      summary: Create a new AI conversation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateOpenaiConversationBody"
+      responses:
+        "201":
+          description: Created conversation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpenaiConversation"
+
+  /openai/conversations/{id}:
+    get:
+      operationId: getOpenaiConversation
+      tags: [openai]
+      summary: Get AI conversation with messages
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Conversation with messages
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpenaiConversationWithMessages"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+    delete:
+      operationId: deleteOpenaiConversation
+      tags: [openai]
+      summary: Delete an AI conversation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+
+  /openai/conversations/{id}/messages:
+    get:
+      operationId: listOpenaiMessages
+      tags: [openai]
+      summary: List messages in an AI conversation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of messages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/OpenaiMessage"
+    post:
+      operationId: sendOpenaiMessage
+      tags: [openai]
+      summary: Send a text message and receive a streaming response
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SendOpenaiMessageBody"
+      responses:
+        "200":
+          description: SSE stream of assistant text chunks
+          content:
+            text/event-stream: {}
+
+  /openai/generate-image:
+    post:
+      operationId: generateOpenaiImage
+      tags: [openai]
+      summary: Generate an image from a text prompt
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GenerateOpenaiImageBody"
+      responses:
+        "200":
+          description: Generated image data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenerateOpenaiImageResponse"
+
+  /storage/uploads/request-url:
+    post:
+      tags: [Storage]
+      operationId: requestUploadUrl
+      summary: Request a presigned URL for file upload
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UploadUrlRequest'
+      responses:
+        '200':
+          description: Presigned upload URL generated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UploadUrlResponse'
+        '400':
+          description: Missing or invalid required fields.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '500':
+          description: Failed to generate upload URL.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+
+  /storage/objects/{objectPath}:
+    get:
+      tags: [Storage]
+      operationId: getStorageObject
+      summary: Serve an object entity
+      parameters:
+        - name: objectPath
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Object content streamed.
+          content:
+            '*/*':
+              schema:
+                type: string
+                format: binary
+
 components:
   schemas:
     HealthStatus:
@@ -115,39 +423,187 @@ components:
           type: string
       required:
         - status
-    Room:
+
+    User:
       type: object
       properties:
         id:
           type: integer
-        name:
+        username:
           type: string
-        description:
+        displayName:
+          type: string
+        avatarColor:
           type: string
         createdAt:
           type: string
           format: date-time
       required:
         - id
-        - name
+        - username
+        - displayName
+        - avatarColor
         - createdAt
-    CreateRoomInput:
+
+    CreateUserInput:
       type: object
       properties:
-        name:
+        username:
           type: string
-        description:
+        displayName:
           type: string
       required:
-        - name
-    Message:
+        - username
+        - displayName
+
+    Contact:
       type: object
       properties:
         id:
           type: integer
-        roomId:
+        userId:
           type: integer
-        username:
+        contactId:
+          type: integer
+        contact:
+          $ref: "#/components/schemas/User"
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - userId
+        - contactId
+        - contact
+        - createdAt
+
+    AddContactInput:
+      type: object
+      properties:
+        contactId:
+          type: integer
+      required:
+        - contactId
+
+    Conversation:
+      type: object
+      properties:
+        id:
+          type: integer
+        type:
+          type: string
+          enum: [dm, group]
+        name:
+          type: string
+        members:
+          type: array
+          items:
+            $ref: "#/components/schemas/User"
+        lastMessage:
+          $ref: "#/components/schemas/ChatMessage"
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - type
+        - members
+        - createdAt
+
+    CreateConversationInput:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [dm, group]
+        name:
+          type: string
+        memberIds:
+          type: array
+          items:
+            type: integer
+      required:
+        - type
+        - memberIds
+
+    ChatMessage:
+      type: object
+      properties:
+        id:
+          type: integer
+        conversationId:
+          type: integer
+        senderId:
+          type: integer
+        sender:
+          $ref: "#/components/schemas/User"
+        content:
+          type: string
+        type:
+          type: string
+          enum: [text, image, file, video]
+        fileUrl:
+          type: string
+        fileName:
+          type: string
+        fileType:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - conversationId
+        - senderId
+        - sender
+        - content
+        - type
+        - createdAt
+
+    SendChatMessageInput:
+      type: object
+      properties:
+        senderId:
+          type: integer
+        content:
+          type: string
+        type:
+          type: string
+          enum: [text, image, file, video]
+        fileUrl:
+          type: string
+        fileName:
+          type: string
+        fileType:
+          type: string
+      required:
+        - senderId
+        - content
+        - type
+
+    OpenaiConversation:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - title
+        - createdAt
+
+    OpenaiMessage:
+      type: object
+      properties:
+        id:
+          type: integer
+        conversationId:
+          type: integer
+        role:
           type: string
         content:
           type: string
@@ -156,17 +612,95 @@ components:
           format: date-time
       required:
         - id
-        - roomId
-        - username
+        - conversationId
+        - role
         - content
         - createdAt
-    SendMessageInput:
+
+    CreateOpenaiConversationBody:
       type: object
       properties:
-        username:
+        title:
           type: string
+      required:
+        - title
+
+    SendOpenaiMessageBody:
+      type: object
+      properties:
         content:
           type: string
       required:
-        - username
         - content
+
+    OpenaiConversationWithMessages:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        messages:
+          type: array
+          items:
+            $ref: "#/components/schemas/OpenaiMessage"
+      required:
+        - id
+        - title
+        - createdAt
+        - messages
+
+    GenerateOpenaiImageBody:
+      type: object
+      properties:
+        prompt:
+          type: string
+        size:
+          type: string
+          enum: ["1024x1024", "512x512", "256x256"]
+      required:
+        - prompt
+
+    GenerateOpenaiImageResponse:
+      type: object
+      properties:
+        b64_json:
+          type: string
+      required:
+        - b64_json
+
+    UploadUrlRequest:
+      type: object
+      required: [name, size, contentType]
+      properties:
+        name:
+          type: string
+          minLength: 1
+        size:
+          type: integer
+          minimum: 1
+        contentType:
+          type: string
+          minLength: 1
+
+    UploadUrlResponse:
+      type: object
+      required: [uploadURL, objectPath]
+      properties:
+        uploadURL:
+          type: string
+          format: uri
+        objectPath:
+          type: string
+        metadata:
+          $ref: '#/components/schemas/UploadUrlRequest'
+
+    ErrorEnvelope:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string

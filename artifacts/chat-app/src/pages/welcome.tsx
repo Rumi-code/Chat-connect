@@ -1,111 +1,98 @@
 import { useState } from "react";
-import { useAuth } from "@/hooks/use-auth";
-import { MessageSquareText, ArrowRight, Sparkles } from "lucide-react";
+import { motion } from "framer-motion";
+import { ArrowRight, MessageSquare, Sparkles } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { motion } from "framer-motion";
+import { useAuth } from "@/hooks/use-auth";
 
 export default function WelcomePage() {
   const { login } = useAuth();
-  const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
+  const [displayName, setDisplayName] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (name.trim()) {
-      login(name);
+    if (!username.trim() || !displayName.trim()) return;
+    setIsLoading(true);
+    try {
+      await login(username, displayName);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen w-full flex bg-background">
-      {/* Left side - Decorative Image */}
-      <div className="hidden lg:flex flex-1 relative bg-muted overflow-hidden">
+    <div className="min-h-screen bg-background flex flex-col md:flex-row relative overflow-hidden">
+      {/* Decorative Blurs */}
+      <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] bg-primary/20 blur-[150px] rounded-full mix-blend-screen pointer-events-none" />
+      <div className="absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] bg-accent/20 blur-[150px] rounded-full mix-blend-screen pointer-events-none" />
+
+      {/* Left side graphics */}
+      <div className="flex-1 relative hidden lg:flex flex-col justify-end p-20 z-10 border-r border-white/5 bg-black/20 backdrop-blur-3xl">
         <img 
           src={`${import.meta.env.BASE_URL}images/welcome-bg.png`}
-          alt="Abstract background"
-          className="absolute inset-0 w-full h-full object-cover"
+          alt="Abstract Background"
+          className="absolute inset-0 w-full h-full object-cover opacity-40 mix-blend-luminosity"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent to-background" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent" />
         
-        <div className="absolute bottom-12 left-12 max-w-md z-10">
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-background/80 backdrop-blur-md border border-border/50 shadow-sm mb-4 text-sm font-medium"
-          >
-            <Sparkles className="w-4 h-4 text-primary" />
-            <span>Next-gen communication</span>
-          </motion.div>
-          <motion.h1 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="text-4xl font-display font-bold text-foreground mb-4 leading-tight"
-          >
-            Connect instantly with anyone, anywhere.
-          </motion.h1>
-          <motion.p 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="text-muted-foreground text-lg"
-          >
-            Experience lightning-fast messaging in a beautifully designed workspace tailored for focus.
-          </motion.p>
-        </div>
+        <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.8 }} className="relative z-10 max-w-lg">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md mb-8">
+            <Sparkles className="w-5 h-5 text-accent" />
+            <span className="text-sm font-medium tracking-wide">Next-gen communication</span>
+          </div>
+          <h1 className="text-6xl font-display font-extrabold leading-[1.1] mb-6 text-transparent bg-clip-text bg-gradient-to-r from-white to-white/60">
+            Connect instantly.<br/>Collaborate freely.
+          </h1>
+          <p className="text-xl text-muted-foreground leading-relaxed">
+            Experience lightning-fast messaging, crystal-clear video calls, and intelligent AI assistance in a beautifully designed workspace.
+          </p>
+        </motion.div>
       </div>
 
-      {/* Right side - Login Form */}
-      <div className="flex-1 flex flex-col justify-center items-center p-8 lg:p-24 bg-background relative z-10">
-        <div className="w-full max-w-sm">
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-xl shadow-primary/20 mb-8"
-          >
-            <MessageSquareText className="h-8 w-8" />
-          </motion.div>
-          
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-          >
-            <h2 className="text-3xl font-display font-bold text-foreground mb-2">Welcome to ChatApp</h2>
-            <p className="text-muted-foreground mb-8">Enter a username to start chatting with your team.</p>
-          </motion.div>
-
-          <motion.form 
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            onSubmit={handleSubmit} 
-            className="space-y-4"
-          >
-            <div className="space-y-2">
-              <label htmlFor="username" className="text-sm font-semibold text-foreground">
-                Your Username
-              </label>
-              <Input 
-                id="username"
-                autoFocus
-                placeholder="e.g. Alex"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="h-12 px-4 bg-muted/50 border-border focus-visible:ring-primary focus-visible:bg-background transition-colors text-base rounded-xl"
-              />
+      {/* Right side form */}
+      <div className="flex-1 flex items-center justify-center p-8 z-10">
+        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5 }} className="w-full max-w-md">
+          <div className="bg-card/40 backdrop-blur-2xl border border-white/10 p-10 rounded-[2.5rem] shadow-2xl">
+            <div className="w-16 h-16 bg-gradient-to-br from-primary to-accent rounded-2xl flex items-center justify-center mb-8 shadow-xl shadow-primary/20 rotate-3">
+              <MessageSquare className="w-8 h-8 text-white" />
             </div>
-            <Button 
-              type="submit" 
-              disabled={!name.trim()}
-              className="w-full h-12 rounded-xl text-base font-medium shadow-lg shadow-primary/20 transition-all hover:translate-y-[-1px] active:translate-y-[1px]"
-            >
-              Continue to Chat
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
-          </motion.form>
-        </div>
+            
+            <h2 className="text-3xl font-display font-bold mb-2">Get Started</h2>
+            <p className="text-muted-foreground mb-8">Create your profile to join the network.</p>
+
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <div className="space-y-2">
+                <label className="text-sm font-semibold ml-1">Display Name</label>
+                <Input 
+                  placeholder="e.g. Alex Johnson"
+                  value={displayName}
+                  onChange={e => setDisplayName(e.target.value)}
+                  className="h-14 px-5 bg-black/20 border-white/10 rounded-2xl text-lg focus-visible:ring-primary focus-visible:bg-black/40 transition-all"
+                  autoFocus
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-semibold ml-1">Username</label>
+                <Input 
+                  placeholder="e.g. alexj"
+                  value={username}
+                  onChange={e => setUsername(e.target.value.toLowerCase().replace(/\s/g, ''))}
+                  className="h-14 px-5 bg-black/20 border-white/10 rounded-2xl text-lg focus-visible:ring-primary focus-visible:bg-black/40 transition-all"
+                />
+              </div>
+              <Button 
+                type="submit" 
+                disabled={!username || !displayName || isLoading}
+                className="w-full h-14 mt-4 rounded-2xl text-lg font-bold bg-white text-black hover:bg-white/90 shadow-xl shadow-white/10 transition-all active:scale-[0.98]"
+              >
+                {isLoading ? "Joining..." : "Continue to App"}
+                {!isLoading && <ArrowRight className="ml-2 w-5 h-5" />}
+              </Button>
+            </form>
+          </div>
+        </motion.div>
       </div>
     </div>
   );

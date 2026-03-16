@@ -1,16 +1,17 @@
 packages:
-  "framer-motion": "For fluid message animations and page transitions"
-  "date-fns": "For precise, human-readable message timestamp formatting"
-  "react-hook-form": "For robust form state management in chat and modals"
-  "@hookform/resolvers": "For Zod schema validation with react-hook-form"
-  "zod": "For strict runtime validation of forms and states"
+  "framer-motion": "For fluid, native-feeling micro-animations and page transitions"
+  "date-fns": "For formatting timestamps"
+  "clsx": "Utility for constructing className strings conditionally"
+  "tailwind-merge": "Utility for merging tailwind classes safely"
+  "react-hook-form": "For robust form state management"
+  "@hookform/resolvers": "Zod resolver for forms"
 
 images:
   - path: "artifacts/chat-app/public/images/welcome-bg.png"
-    description: "A beautiful, abstract 3D geometric background featuring soft gradient meshes in deep indigo, violet, and very faint pastel blue. It feels modern, premium, and calm, perfect for a high-end web app landing page. Smooth lighting, 8k resolution, minimalist."
+    description: "Abstract minimal dark space gradient with neon purple and deep blue nebulas, sleek glassmorphism style messaging app background"
     aspect_ratio: "16:9"
 
 notes:
-  - "The app uses polling every 2 seconds via React Query refetchInterval to simulate real-time chat."
-  - "Username is stored in localStorage and checked before allowing access to the main chat interface."
-  - "Sidebar is styled dynamically using custom CSS variables to ensure a sleek dark mode appearance while the main chat area remains light and readable."
+  - Assumes a WebSocket server exists at /ws for WebRTC signaling and real-time invalidations.
+  - Using direct fetch for SSE AI streams and file uploads since hooks don't support streams/binary bodies directly.
+  - Leveraging standard REST hooks for entity CRUD.
