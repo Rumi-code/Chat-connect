@@ -1,0 +1,8 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "ssqk0m7weuS8FzeeamTjY"
+uri = "file:///tmp/nexus-chat-source.tar.gz"
+type = "unspecified"
+title = "Nexus Chat — Source Files"
