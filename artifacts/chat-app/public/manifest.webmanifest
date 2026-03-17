@@ -1,0 +1,20 @@
+{
+  "name": "Nexus Chat",
+  "short_name": "Nexus",
+  "description": "Real-time chat with AI, video calling, and file sharing",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f0f12",
+  "theme_color": "#7c3aed",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["productivity", "social"],
+  "screenshots": []
+}

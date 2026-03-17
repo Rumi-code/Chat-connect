@@ -7,16 +7,36 @@ import { useListMessages, useSendChatMessage, useListConversations, useRequestUp
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
 import { useWebRTC } from "@/hooks/use-webrtc";
+import { useSettings, CHAT_BACKGROUNDS } from "@/hooks/use-settings";
 import { Avatar } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { cn, getFileUrl } from "@/lib/utils";
+
+function getBackgroundStyle(backgroundId: string): React.CSSProperties {
+  const bg = CHAT_BACKGROUNDS.find(b => b.id === backgroundId);
+  if (!bg || !bg.value) return {};
+  if (bg.id === "dots") {
+    return {
+      backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.08) 1px, transparent 1px)",
+      backgroundSize: "20px 20px",
+    };
+  }
+  if (bg.id === "grid") {
+    return {
+      backgroundImage: "linear-gradient(to right, rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.04) 1px, transparent 1px)",
+      backgroundSize: "32px 32px",
+    };
+  }
+  return { background: bg.value };
+}
 
 export function ChatArea() {
   const { id } = useParams();
   const conversationId = parseInt(id || "0");
   const { user } = useAuth();
   const { startCall } = useWebRTC();
+  const { getChatBackground } = useSettings();
   const queryClient = useQueryClient();
   
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -79,9 +99,11 @@ export function ChatArea() {
   };
 
   const otherUser = conversation?.members.find(m => m.id !== user?.id);
+  const bgId = getChatBackground(conversationId);
+  const bgStyle = getBackgroundStyle(bgId);
 
   return (
-    <div className="flex-1 flex flex-col h-full relative bg-background/50 backdrop-blur-3xl">
+    <div className="flex-1 flex flex-col h-full relative bg-background/50 backdrop-blur-3xl" style={bgStyle}>
       {/* Header */}
       <div className="h-20 px-8 border-b border-white/5 flex items-center justify-between shrink-0 bg-card/40 backdrop-blur-md z-10">
         <div className="flex items-center gap-4">

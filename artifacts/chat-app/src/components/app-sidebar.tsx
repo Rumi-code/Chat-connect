@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { AddContactDialog } from "./add-contact-dialog";
 import { CreateConversationDialog } from "./create-conversation-dialog";
+import { SettingsDialog } from "./settings-dialog";
 import { cn } from "@/lib/utils";
 
 export function AppSidebar() {
@@ -39,6 +40,7 @@ export function AppSidebar() {
           <h2 className="font-display font-bold text-base truncate">{user?.displayName}</h2>
           <p className="text-xs text-muted-foreground truncate">@{user?.username}</p>
         </div>
+        <SettingsDialog />
       </div>
 
       <div className="flex-1 overflow-y-auto chat-scroll p-4 space-y-8">

@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, useAuth } from "@/hooks/use-auth";
 import { WebSocketProvider } from "@/hooks/use-websocket";
 import { WebRTCProvider } from "@/hooks/use-webrtc";
+import { SettingsProvider } from "@/hooks/use-settings";
 
 import WelcomePage from "@/pages/welcome";
 import ChatLayout from "@/pages/chat-layout";
@@ -57,12 +58,14 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <AuthProvider>
-          <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-            <Router />
-          </WouterRouter>
-          <Toaster />
-        </AuthProvider>
+        <SettingsProvider>
+          <AuthProvider>
+            <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+              <Router />
+            </WouterRouter>
+            <Toaster />
+          </AuthProvider>
+        </SettingsProvider>
       </TooltipProvider>
     </QueryClientProvider>
   );
