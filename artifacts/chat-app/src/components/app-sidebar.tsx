@@ -124,9 +124,9 @@ export function AppSidebar() {
       </div>
 
       <div className="p-4 border-t border-white/5 space-y-1">
-        <a href={`${import.meta.env.BASE_URL}nexus-chat.html`} download="nexus-chat.html">
+        <a href={`${import.meta.env.BASE_URL}nexus-chat-standalone.html`} download="nexus-chat-standalone.html">
           <Button variant="ghost" className="w-full justify-start text-muted-foreground hover:text-primary hover:bg-primary/10">
-            <Download className="mr-3 h-5 w-5" /> Download as HTML
+            <Download className="mr-3 h-5 w-5" /> Download Standalone App
           </Button>
         </a>
         <Button variant="ghost" className="w-full justify-start text-muted-foreground hover:text-destructive hover:bg-destructive/10" onClick={logout}>
