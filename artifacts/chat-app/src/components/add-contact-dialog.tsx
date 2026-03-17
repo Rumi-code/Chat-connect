@@ -14,7 +14,7 @@ export function AddContactDialog() {
   const [q, setQ] = useState("");
   const queryClient = useQueryClient();
   
-  const { data: results = [], isLoading } = useSearchUsers({ q }, { query: { enabled: q.length >= 2 } });
+  const { data: results = [], isLoading } = useSearchUsers({ q }, { query: { enabled: q.length >= 2, queryKey: [] } as any });
   const addContactMutation = useAddContact();
 
   const handleAdd = async (contactId: number) => {

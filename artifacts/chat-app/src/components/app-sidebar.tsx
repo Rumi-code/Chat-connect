@@ -12,8 +12,8 @@ export function AppSidebar() {
   const { user, logout } = useAuth();
   const [location, setLocation] = useLocation();
   
-  const { data: convos = [] } = useListConversations({ userId: user?.id ?? 0 }, { query: { refetchInterval: 5000, enabled: !!user } });
-  const { data: aiChats = [] } = useListOpenaiConversations({ query: { enabled: !!user } });
+  const { data: convos = [] } = useListConversations({ userId: user?.id ?? 0 }, { query: { refetchInterval: 5000, enabled: !!user, queryKey: [] } as any });
+  const { data: aiChats = [] } = useListOpenaiConversations({ query: { enabled: !!user, queryKey: [] } as any });
   const createAiChat = useCreateOpenaiConversation();
 
   const dms = convos.filter(c => c.type === "dm");

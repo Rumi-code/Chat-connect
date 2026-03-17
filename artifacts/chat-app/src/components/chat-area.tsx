@@ -26,7 +26,7 @@ export function ChatArea() {
 
   const { data: convos } = useListConversations({ userId: user?.id ?? 0 });
   const conversation = convos?.find(c => c.id === conversationId);
-  const { data: messages = [] } = useListMessages(conversationId, undefined, { query: { refetchInterval: 2000, enabled: !!conversationId } });
+  const { data: messages = [] } = useListMessages(conversationId, undefined, { query: { refetchInterval: 2000, enabled: !!conversationId, queryKey: [] } as any });
   
   const sendMessageMutation = useSendChatMessage();
   const requestUploadUrl = useRequestUploadUrl();
