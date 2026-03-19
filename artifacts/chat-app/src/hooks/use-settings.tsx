@@ -1,6 +1,9 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
 
 export type ThemeId = "dark" | "light" | "midnight" | "ocean" | "forest" | "rose";
+export type FontSize = "sm" | "md" | "lg";
+export type BubbleStyle = "rounded" | "square" | "pill";
+export type TimestampMode = "always" | "hover" | "never";
 
 export interface Theme {
   id: ThemeId;
@@ -134,12 +137,24 @@ export const CHAT_BACKGROUNDS = [
 interface SettingsState {
   themeId: ThemeId;
   chatBackgrounds: Record<number, string>;
+  fontSize: FontSize;
+  bubbleStyle: BubbleStyle;
+  enterToSend: boolean;
+  timestampMode: TimestampMode;
+  soundEnabled: boolean;
+  compactMode: boolean;
 }
 
 interface SettingsContext extends SettingsState {
   setTheme: (id: ThemeId) => void;
   setChatBackground: (conversationId: number, backgroundId: string) => void;
   getChatBackground: (conversationId: number) => string;
+  setFontSize: (size: FontSize) => void;
+  setBubbleStyle: (style: BubbleStyle) => void;
+  setEnterToSend: (value: boolean) => void;
+  setTimestampMode: (mode: TimestampMode) => void;
+  setSoundEnabled: (value: boolean) => void;
+  setCompactMode: (value: boolean) => void;
 }
 
 const Context = createContext<SettingsContext | null>(null);
@@ -151,23 +166,33 @@ function applyTheme(theme: Theme) {
   }
 }
 
-export function SettingsProvider({ children }: { children: ReactNode }) {
-  const [themeId, setThemeId] = useState<ThemeId>(() => {
-    return (localStorage.getItem("nexus-theme") as ThemeId) || "dark";
-  });
+function load<T>(key: string, fallback: T): T {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw !== null ? JSON.parse(raw) : fallback;
+  } catch {
+    return fallback;
+  }
+}
 
-  const [chatBackgrounds, setChatBackgrounds] = useState<Record<number, string>>(() => {
-    try {
-      return JSON.parse(localStorage.getItem("nexus-chat-backgrounds") || "{}");
-    } catch {
-      return {};
-    }
-  });
+function save<T>(key: string, value: T) {
+  localStorage.setItem(key, JSON.stringify(value));
+}
+
+export function SettingsProvider({ children }: { children: ReactNode }) {
+  const [themeId, setThemeId] = useState<ThemeId>(() => load("nexus-theme", "dark"));
+  const [chatBackgrounds, setChatBackgrounds] = useState<Record<number, string>>(() => load("nexus-chat-backgrounds", {}));
+  const [fontSize, setFontSizeState] = useState<FontSize>(() => load("nexus-font-size", "md"));
+  const [bubbleStyle, setBubbleStyleState] = useState<BubbleStyle>(() => load("nexus-bubble-style", "rounded"));
+  const [enterToSend, setEnterToSendState] = useState<boolean>(() => load("nexus-enter-to-send", true));
+  const [timestampMode, setTimestampModeState] = useState<TimestampMode>(() => load("nexus-timestamp-mode", "always"));
+  const [soundEnabled, setSoundEnabledState] = useState<boolean>(() => load("nexus-sound-enabled", false));
+  const [compactMode, setCompactModeState] = useState<boolean>(() => load("nexus-compact-mode", false));
 
   useEffect(() => {
     const theme = THEMES.find(t => t.id === themeId) || THEMES[0];
     applyTheme(theme);
-    localStorage.setItem("nexus-theme", themeId);
+    save("nexus-theme", themeId);
   }, [themeId]);
 
   const setTheme = (id: ThemeId) => setThemeId(id);
@@ -175,17 +200,26 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   const setChatBackground = (conversationId: number, backgroundId: string) => {
     setChatBackgrounds(prev => {
       const next = { ...prev, [conversationId]: backgroundId };
-      localStorage.setItem("nexus-chat-backgrounds", JSON.stringify(next));
+      save("nexus-chat-backgrounds", next);
       return next;
     });
   };
 
-  const getChatBackground = (conversationId: number) => {
-    return chatBackgrounds[conversationId] || "default";
-  };
+  const getChatBackground = (conversationId: number) => chatBackgrounds[conversationId] || "default";
+
+  const setFontSize = (size: FontSize) => { setFontSizeState(size); save("nexus-font-size", size); };
+  const setBubbleStyle = (style: BubbleStyle) => { setBubbleStyleState(style); save("nexus-bubble-style", style); };
+  const setEnterToSend = (v: boolean) => { setEnterToSendState(v); save("nexus-enter-to-send", v); };
+  const setTimestampMode = (m: TimestampMode) => { setTimestampModeState(m); save("nexus-timestamp-mode", m); };
+  const setSoundEnabled = (v: boolean) => { setSoundEnabledState(v); save("nexus-sound-enabled", v); };
+  const setCompactMode = (v: boolean) => { setCompactModeState(v); save("nexus-compact-mode", v); };
 
   return (
-    <Context.Provider value={{ themeId, chatBackgrounds, setTheme, setChatBackground, getChatBackground }}>
+    <Context.Provider value={{
+      themeId, chatBackgrounds, fontSize, bubbleStyle, enterToSend, timestampMode, soundEnabled, compactMode,
+      setTheme, setChatBackground, getChatBackground,
+      setFontSize, setBubbleStyle, setEnterToSend, setTimestampMode, setSoundEnabled, setCompactMode,
+    }}>
       {children}
     </Context.Provider>
   );
