@@ -105,7 +105,7 @@ export function ChatArea() {
   return (
     <div className="flex-1 flex flex-col h-full relative bg-background/50 backdrop-blur-3xl" style={bgStyle}>
       {/* Header */}
-      <div className="h-20 px-8 border-b border-white/5 flex items-center justify-between shrink-0 bg-card/40 backdrop-blur-md z-10">
+      <div className="h-16 md:h-20 px-4 md:px-8 border-b border-white/5 flex items-center justify-between shrink-0 bg-card/40 backdrop-blur-md z-10">
         <div className="flex items-center gap-4">
           {conversation?.type === "dm" ? (
             <Avatar className="h-12 w-12 border-2 border-white/10 shadow-lg">
@@ -133,7 +133,7 @@ export function ChatArea() {
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto chat-scroll p-8 flex flex-col gap-6">
+      <div className="flex-1 overflow-y-auto chat-scroll p-4 md:p-8 flex flex-col gap-4 md:gap-6">
         {messages.length === 0 && (
           <div className="flex-1 flex items-center justify-center text-muted-foreground opacity-50">
             <p>This is the beginning of the conversation.</p>
@@ -190,7 +190,7 @@ export function ChatArea() {
       </div>
 
       {/* Input */}
-      <div className="p-6 pt-0 shrink-0">
+      <div className="p-4 md:p-6 pt-0 shrink-0 chat-input-safe">
         <form onSubmit={handleSend} className="relative flex items-center bg-card/60 backdrop-blur-xl border border-white/10 p-2 rounded-3xl shadow-xl">
           <input type="file" ref={fileInputRef} className="hidden" onChange={handleFileUpload} />
           <Button type="button" variant="ghost" size="icon" className="w-12 h-12 rounded-2xl hover:bg-white/5 shrink-0 text-muted-foreground" onClick={() => fileInputRef.current?.click()} disabled={isUploading}>

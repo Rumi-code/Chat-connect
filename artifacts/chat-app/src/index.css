@@ -32,7 +32,6 @@
   --color-destructive-foreground: hsl(var(--destructive-foreground));
 
   --color-sidebar: hsl(var(--sidebar));
-
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -78,20 +77,37 @@
 @layer base {
   * {
     @apply border-border;
+    -webkit-tap-highlight-color: transparent;
+    box-sizing: border-box;
   }
   body {
     @apply font-sans antialiased bg-background text-foreground;
+    overscroll-behavior: none;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
     @apply tracking-tight font-bold;
   }
+  button, a, [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+    touch-action: manipulation;
+  }
+  button.inline, a.inline {
+    min-height: unset;
+    min-width: unset;
+  }
+  input, textarea {
+    font-size: 16px;
+  }
 }
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
@@ -107,4 +123,43 @@
 /* Hide input cancel button */
 input[type="search"]::-webkit-search-cancel-button {
   @apply hidden;
+}
+
+/* Chat scroll area */
+.chat-scroll {
+  scroll-behavior: smooth;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Safe area insets for modern mobile */
+@supports (padding: env(safe-area-inset-bottom)) {
+  .chat-input-safe {
+    padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
+  }
+}
+
+/* Smooth transitions */
+* {
+  transition-property: background-color, border-color, opacity;
+  transition-duration: 150ms;
+  transition-timing-function: ease;
+}
+
+/* Disable transition during load */
+.no-transition * {
+  transition: none !important;
+}
+
+/* Focus visible */
+:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+/* Prevent text selection on interactive elements */
+button, a {
+  user-select: none;
+  -webkit-user-select: none;
 }
