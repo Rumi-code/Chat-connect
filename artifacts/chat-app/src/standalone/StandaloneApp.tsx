@@ -17,22 +17,11 @@ import {
 
 // ── Themes ──────────────────────────────────────────────────────────────────
 const THEMES = [
-  { id: "dark",     name: "Dark",    preview: "#0f0f12", vars: { "--background":"240 10% 6%","--foreground":"0 0% 95%","--card":"240 10% 9%","--sidebar":"240 10% 5%","--primary":"265 89% 58%","--primary-foreground":"0 0% 100%","--accent":"265 89% 68%","--muted":"240 5% 18%","--muted-foreground":"240 5% 60%","--border":"240 5% 18%","--card-foreground":"0 0% 95%" }},
+  { id: "dark",     name: "Dark",    preview: "#0f0f12", vars: { "--background":"240 10% 6%","--foreground":"0 0% 95%","--card":"240 10% 9%","--sidebar":"240 10% 5%","--primary":"174 84% 40%","--primary-foreground":"0 0% 100%","--accent":"190 96% 42%","--muted":"240 5% 18%","--muted-foreground":"240 5% 60%","--border":"240 5% 18%","--card-foreground":"0 0% 95%" }},
   { id: "midnight", name: "Midnight",preview: "#03071e", vars: { "--background":"222 47% 5%","--foreground":"210 40% 95%","--card":"222 47% 8%","--sidebar":"222 47% 4%","--primary":"213 94% 58%","--primary-foreground":"0 0% 100%","--accent":"213 94% 68%","--muted":"222 20% 16%","--muted-foreground":"215 20% 55%","--border":"222 20% 16%","--card-foreground":"210 40% 95%" }},
-  { id: "ocean",    name: "Ocean",   preview: "#03045e", vars: { "--background":"197 60% 6%","--foreground":"197 30% 95%","--card":"197 60% 9%","--sidebar":"197 60% 5%","--primary":"185 96% 42%","--primary-foreground":"0 0% 100%","--accent":"185 96% 52%","--muted":"197 25% 18%","--muted-foreground":"197 20% 55%","--border":"197 25% 18%","--card-foreground":"197 30% 95%" }},
   { id: "forest",   name: "Forest",  preview: "#0a1f0a", vars: { "--background":"138 40% 5%","--foreground":"138 20% 93%","--card":"138 40% 8%","--sidebar":"138 40% 4%","--primary":"142 71% 45%","--primary-foreground":"0 0% 100%","--accent":"142 71% 55%","--muted":"138 20% 16%","--muted-foreground":"138 15% 55%","--border":"138 20% 16%","--card-foreground":"138 20% 93%" }},
   { id: "rose",     name: "Rose",    preview: "#1f0a14", vars: { "--background":"345 40% 5%","--foreground":"345 20% 95%","--card":"345 40% 8%","--sidebar":"345 40% 4%","--primary":"346 77% 55%","--primary-foreground":"0 0% 100%","--accent":"346 77% 65%","--muted":"345 20% 16%","--muted-foreground":"345 15% 55%","--border":"345 20% 16%","--card-foreground":"345 20% 95%" }},
-  { id: "light",    name: "Light",   preview: "#f8f8f8", vars: { "--background":"0 0% 98%","--foreground":"240 10% 8%","--card":"0 0% 100%","--sidebar":"240 5% 94%","--primary":"265 89% 58%","--primary-foreground":"0 0% 100%","--accent":"265 89% 58%","--muted":"240 5% 90%","--muted-foreground":"240 5% 45%","--border":"240 5% 85%","--card-foreground":"240 10% 8%" }},
-];
-
-const CHAT_BACKGROUNDS = [
-  { id: "default",         name: "Default",       style: {} },
-  { id: "gradient-purple", name: "Purple Haze",   style: { background: "linear-gradient(135deg, #1a0533 0%, #0f0f1a 50%, #0a1a2e 100%)" } },
-  { id: "gradient-ocean",  name: "Deep Ocean",    style: { background: "linear-gradient(135deg, #001e3c 0%, #0a1628 50%, #0f2a3f 100%)" } },
-  { id: "gradient-forest", name: "Dark Forest",   style: { background: "linear-gradient(135deg, #0a1f0a 0%, #0f1a0f 50%, #162b16 100%)" } },
-  { id: "gradient-rose",   name: "Midnight Rose", style: { background: "linear-gradient(135deg, #1f0a14 0%, #1a0f14 50%, #2b0a16 100%)" } },
-  { id: "dots",            name: "Dot Grid",      style: { backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.08) 1px, transparent 1px)", backgroundSize: "20px 20px" } },
-  { id: "grid",            name: "Grid Lines",    style: { backgroundImage: "linear-gradient(to right, rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.04) 1px, transparent 1px)", backgroundSize: "32px 32px" } },
+  { id: "light",    name: "Light",   preview: "#f8f8f8", vars: { "--background":"0 0% 98%","--foreground":"240 10% 8%","--card":"0 0% 100%","--sidebar":"240 5% 94%","--primary":"174 84% 36%","--primary-foreground":"0 0% 100%","--accent":"190 96% 38%","--muted":"240 5% 90%","--muted-foreground":"240 5% 45%","--border":"240 5% 85%","--card-foreground":"240 10% 8%" }},
 ];
 
 function applyTheme(id: string) {
@@ -47,8 +36,6 @@ const AppCtx = createContext<{
   logout: () => void;
   themeId: string;
   setTheme: (id: string) => void;
-  bgId: (convId: string) => string;
-  setBg: (convId: string, bgId: string) => void;
   conversations: LocalConversation[];
   refreshConversations: () => void;
 }>(null!);
@@ -78,7 +65,7 @@ function WelcomeScreen({ onLogin }: { onLogin: (u: LocalUser) => void }) {
             <Bot className="w-7 h-7 text-white" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold font-display">Nexus Chat</h1>
+            <h1 className="text-2xl font-bold font-display">Flare AI</h1>
             <p className="text-sm text-muted-foreground">Standalone — no server required</p>
           </div>
         </div>
@@ -131,8 +118,8 @@ function WelcomeScreen({ onLogin }: { onLogin: (u: LocalUser) => void }) {
 }
 
 // ── Settings Dialog ───────────────────────────────────────────────────────────
-function SettingsDialog({ convId }: { convId?: string }) {
-  const { user, themeId, setTheme, bgId, setBg } = useContext(AppCtx);
+function SettingsDialog() {
+  const { user, themeId, setTheme } = useContext(AppCtx);
   const [apiKey, setApiKey] = useState(user.apiKey);
   const [saved, setSaved] = useState(false);
 
@@ -142,8 +129,6 @@ function SettingsDialog({ convId }: { convId?: string }) {
     setSaved(true);
     setTimeout(() => setSaved(false), 1500);
   };
-
-  const currentBg = convId ? bgId(convId) : "default";
 
   return (
     <Dialog>
@@ -163,11 +148,6 @@ function SettingsDialog({ convId }: { convId?: string }) {
             <TabsTrigger value="theme" className="flex-1 rounded-xl data-[state=active]:bg-primary/20 data-[state=active]:text-primary">
               <Palette className="w-4 h-4 mr-2" /> Theme
             </TabsTrigger>
-            {convId && (
-              <TabsTrigger value="bg" className="flex-1 rounded-xl data-[state=active]:bg-primary/20 data-[state=active]:text-primary">
-                Background
-              </TabsTrigger>
-            )}
             <TabsTrigger value="api" className="flex-1 rounded-xl data-[state=active]:bg-primary/20 data-[state=active]:text-primary">
               <KeyRound className="w-4 h-4 mr-2" /> API Key
             </TabsTrigger>
@@ -190,34 +170,11 @@ function SettingsDialog({ convId }: { convId?: string }) {
             </div>
           </TabsContent>
 
-          {convId && (
-            <TabsContent value="bg" className="mt-0 space-y-3">
-              <p className="text-sm text-muted-foreground">Set a background for this chat.</p>
-              <div className="grid grid-cols-2 gap-2">
-                {CHAT_BACKGROUNDS.map(bg => (
-                  <button key={bg.id} onClick={() => setBg(convId, bg.id)}
-                    className={cn("flex items-center gap-3 px-3 py-2.5 rounded-xl border-2 text-left transition-all text-sm font-medium",
-                      currentBg === bg.id ? "border-primary bg-primary/10 text-primary" : "border-white/10 hover:border-white/30 hover:bg-white/5"
-                    )}>
-                    <div className="w-6 h-6 rounded-lg border border-white/20 shrink-0" style={bg.style} />
-                    <span className="text-xs">{bg.name}</span>
-                    {currentBg === bg.id && <Check className="w-3.5 h-3.5 ml-auto text-primary" />}
-                  </button>
-                ))}
-              </div>
-            </TabsContent>
-          )}
-
           <TabsContent value="api" className="mt-0 space-y-4">
             <p className="text-sm text-muted-foreground">Your OpenAI API key — stored only in your browser.</p>
             <div className="space-y-2">
-              <Input
-                type="password"
-                placeholder="sk-..."
-                value={apiKey}
-                onChange={e => setApiKey(e.target.value)}
-                className="bg-white/5 border-white/10 rounded-xl"
-              />
+              <Input type="password" placeholder="sk-..." value={apiKey}
+                onChange={e => setApiKey(e.target.value)} className="bg-white/5 border-white/10 rounded-xl" />
               <Button onClick={saveKey} className="w-full rounded-xl" variant={saved ? "secondary" : "default"}>
                 {saved ? "✓ Saved" : "Save Key"}
               </Button>
@@ -234,7 +191,7 @@ function SettingsDialog({ convId }: { convId?: string }) {
 
 // ── AI Chat Area ──────────────────────────────────────────────────────────────
 function AIChatArea({ convId }: { convId: string }) {
-  const { user, bgId, refreshConversations } = useContext(AppCtx);
+  const { user, refreshConversations } = useContext(AppCtx);
   const [conv, setConv] = useState<LocalConversation | null>(null);
   const [content, setContent] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
@@ -403,13 +360,10 @@ function AIChatArea({ convId }: { convId: string }) {
     if (mediaRef.current?.state === "recording") mediaRef.current.stop();
   }, []);
 
-  const currentBgId = bgId(convId);
-  const bgStyle = CHAT_BACKGROUNDS.find(b => b.id === currentBgId)?.style || {};
-
   if (!conv) return null;
 
   return (
-    <div className="flex-1 flex flex-col h-full relative" style={bgStyle as React.CSSProperties}>
+    <div className="flex-1 flex flex-col h-full relative">
       {/* Header */}
       <div className="h-20 px-8 border-b border-accent/20 flex items-center justify-between shrink-0 bg-card/20 backdrop-blur-md z-10">
         <div className="flex items-center gap-4">
@@ -424,7 +378,7 @@ function AIChatArea({ convId }: { convId: string }) {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <SettingsDialog convId={convId} />
+          <SettingsDialog />
           {voiceState === "idle" ? (
             <Button onClick={startVoiceCall} variant="secondary" size="icon"
               className="w-12 h-12 rounded-full bg-accent/10 hover:bg-accent/20 border border-accent/30 text-accent">
@@ -561,7 +515,6 @@ function EmptyState() {
 export default function StandaloneApp() {
   const [user, setUser] = useState<LocalUser | null>(() => getUser());
   const [themeId, setThemeIdState] = useState<string>(() => getSettings().themeId || "dark");
-  const [chatBgs, setChatBgs] = useState<Record<string, string>>(() => getSettings().chatBgs || {});
   const [conversations, setConversations] = useState<LocalConversation[]>(() => getConversations());
   const [activeConvId, setActiveConvId] = useState<string | null>(null);
 
@@ -571,11 +524,6 @@ export default function StandaloneApp() {
     setThemeIdState(id);
     saveSetting("themeId", id);
     applyTheme(id);
-  };
-
-  const getBg = (convId: string) => chatBgs[convId] || "default";
-  const setBg = (convId: string, bgId: string) => {
-    setChatBgs(prev => { const n = { ...prev, [convId]: bgId }; saveSetting("chatBgs", n); return n; });
   };
 
   const refreshConversations = () => setConversations(getConversations());
@@ -592,14 +540,14 @@ export default function StandaloneApp() {
     if (activeConvId === id) setActiveConvId(null);
   };
 
-  const logout = () => { localStorage.removeItem("nexus-standalone:user"); setUser(null); };
+  const logout = () => { localStorage.removeItem("flare:user"); setUser(null); };
 
   if (!user) return <WelcomeScreen onLogin={u => setUser(u)} />;
 
   const activeConv = conversations.find(c => c.id === activeConvId);
 
   return (
-    <AppCtx.Provider value={{ user, logout, themeId, setTheme, bgId: getBg, setBg, conversations, refreshConversations }}>
+    <AppCtx.Provider value={{ user, logout, themeId, setTheme, conversations, refreshConversations }}>
       <div className="flex h-[100dvh] w-full bg-sidebar overflow-hidden text-foreground">
         {/* Sidebar */}
         <div className="w-72 bg-sidebar flex flex-col h-full border-r border-white/5 shrink-0">
@@ -614,7 +562,7 @@ export default function StandaloneApp() {
               <h2 className="font-display font-bold text-base truncate">{user.name}</h2>
               <p className="text-xs text-muted-foreground">{user.apiKey ? "API key set ✓" : "No API key"}</p>
             </div>
-            <SettingsDialog convId={activeConvId || undefined} />
+            <SettingsDialog />
           </div>
 
           {/* Conversations */}
@@ -652,7 +600,7 @@ export default function StandaloneApp() {
 
           {/* Footer */}
           <div className="p-4 border-t border-white/5 space-y-1">
-            <a href="nexus-chat-standalone.html" download="nexus-chat-standalone.html">
+            <a href="flare-chat-standalone.html" download="flare-chat-standalone.html">
               <Button variant="ghost" className="w-full justify-start text-muted-foreground hover:text-primary hover:bg-primary/10">
                 <Download className="mr-3 h-5 w-5" /> Download this app
               </Button>

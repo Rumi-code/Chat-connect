@@ -1,11 +1,11 @@
 {
-  "name": "Nexus Chat",
-  "short_name": "Nexus",
+  "name": "Flare Chat",
+  "short_name": "Flare",
   "description": "Real-time chat with AI, video calling, and file sharing",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0f0f12",
-  "theme_color": "#7c3aed",
+  "background_color": "#0a1a1a",
+  "theme_color": "#14B8A6",
   "orientation": "portrait-primary",
   "icons": [
     {

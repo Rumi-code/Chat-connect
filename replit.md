@@ -1,8 +1,8 @@
-# Workspace
+# Flare Chat
 
 ## Overview
 
-pnpm workspace monorepo using TypeScript. Each package manages its own dependencies.
+pnpm workspace monorepo using TypeScript. Flare is a real-time chat app with AI integration, video calling, and a standalone browser-only mode. Rebranded from "Nexus" to "Flare" with teal/cyan brand colors and a lightning bolt logo.
 
 ## Stack
 

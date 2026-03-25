@@ -64,7 +64,7 @@ router.post("/openai/conversations/:id/messages", async (req, res) => {
   let fullResponse = "";
   try {
     const stream = await openai.chat.completions.create({
-      model: "gpt-5.2",
+      model: "gpt-4o",
       max_completion_tokens: 8192,
       messages: [
         { role: "system", content: "You are a helpful AI assistant in a chat app. Be friendly, concise, and helpful." },

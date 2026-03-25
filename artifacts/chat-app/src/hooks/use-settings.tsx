@@ -265,20 +265,20 @@ function save<T>(key: string, value: T) {
 }
 
 export function SettingsProvider({ children }: { children: ReactNode }) {
-  const [themeId, setThemeId] = useState<ThemeId>(() => load("nexus-theme", "dark"));
-  const [chatBackgrounds, setChatBackgrounds] = useState<Record<number, string>>(() => load("nexus-chat-backgrounds", {}));
-  const [fontSize, setFontSizeState] = useState<FontSize>(() => load("nexus-font-size", "md"));
-  const [bubbleStyle, setBubbleStyleState] = useState<BubbleStyle>(() => load("nexus-bubble-style", "rounded"));
-  const [enterToSend, setEnterToSendState] = useState<boolean>(() => load("nexus-enter-to-send", true));
-  const [timestampMode, setTimestampModeState] = useState<TimestampMode>(() => load("nexus-timestamp-mode", "always"));
-  const [soundEnabled, setSoundEnabledState] = useState<boolean>(() => load("nexus-sound-enabled", false));
-  const [compactMode, setCompactModeState] = useState<boolean>(() => load("nexus-compact-mode", false));
-  const [serverUrl, setServerUrlState] = useState<string>(() => localStorage.getItem("nexus-server-url") ?? "");
+  const [themeId, setThemeId] = useState<ThemeId>(() => load("flare-theme", "dark"));
+  const [chatBackgrounds, setChatBackgrounds] = useState<Record<number, string>>(() => load("flare-chat-backgrounds", {}));
+  const [fontSize, setFontSizeState] = useState<FontSize>(() => load("flare-font-size", "md"));
+  const [bubbleStyle, setBubbleStyleState] = useState<BubbleStyle>(() => load("flare-bubble-style", "rounded"));
+  const [enterToSend, setEnterToSendState] = useState<boolean>(() => load("flare-enter-to-send", true));
+  const [timestampMode, setTimestampModeState] = useState<TimestampMode>(() => load("flare-timestamp-mode", "always"));
+  const [soundEnabled, setSoundEnabledState] = useState<boolean>(() => load("flare-sound-enabled", false));
+  const [compactMode, setCompactModeState] = useState<boolean>(() => load("flare-compact-mode", false));
+  const [serverUrl, setServerUrlState] = useState<string>(() => localStorage.getItem("flare-server-url") ?? "");
 
   useEffect(() => {
     const theme = THEMES.find(t => t.id === themeId) || THEMES[0];
     applyTheme(theme);
-    save("nexus-theme", themeId);
+    save("flare-theme", themeId);
   }, [themeId]);
 
   const setTheme = (id: ThemeId) => setThemeId(id);
@@ -286,26 +286,26 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   const setChatBackground = (conversationId: number, backgroundId: string) => {
     setChatBackgrounds(prev => {
       const next = { ...prev, [conversationId]: backgroundId };
-      save("nexus-chat-backgrounds", next);
+      save("flare-chat-backgrounds", next);
       return next;
     });
   };
 
   const getChatBackground = (conversationId: number) => chatBackgrounds[conversationId] || "default";
 
-  const setFontSize = (size: FontSize) => { setFontSizeState(size); save("nexus-font-size", size); };
-  const setBubbleStyle = (style: BubbleStyle) => { setBubbleStyleState(style); save("nexus-bubble-style", style); };
-  const setEnterToSend = (v: boolean) => { setEnterToSendState(v); save("nexus-enter-to-send", v); };
-  const setTimestampMode = (m: TimestampMode) => { setTimestampModeState(m); save("nexus-timestamp-mode", m); };
-  const setSoundEnabled = (v: boolean) => { setSoundEnabledState(v); save("nexus-sound-enabled", v); };
-  const setCompactMode = (v: boolean) => { setCompactModeState(v); save("nexus-compact-mode", v); };
+  const setFontSize = (size: FontSize) => { setFontSizeState(size); save("flare-font-size", size); };
+  const setBubbleStyle = (style: BubbleStyle) => { setBubbleStyleState(style); save("flare-bubble-style", style); };
+  const setEnterToSend = (v: boolean) => { setEnterToSendState(v); save("flare-enter-to-send", v); };
+  const setTimestampMode = (m: TimestampMode) => { setTimestampModeState(m); save("flare-timestamp-mode", m); };
+  const setSoundEnabled = (v: boolean) => { setSoundEnabledState(v); save("flare-sound-enabled", v); };
+  const setCompactMode = (v: boolean) => { setCompactModeState(v); save("flare-compact-mode", v); };
   const setServerUrl = (url: string) => {
     const cleaned = url.trim().replace(/\/$/, "");
     setServerUrlState(cleaned);
     if (cleaned) {
-      localStorage.setItem("nexus-server-url", cleaned);
+      localStorage.setItem("flare-server-url", cleaned);
     } else {
-      localStorage.removeItem("nexus-server-url");
+      localStorage.removeItem("flare-server-url");
     }
   };
 

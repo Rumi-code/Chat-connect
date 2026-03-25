@@ -320,9 +320,9 @@ export function SettingsDialog() {
                 <div className="flex items-start gap-3">
                   <Wifi className="w-5 h-5 text-primary mt-0.5 shrink-0" />
                   <div>
-                    <p className="text-sm font-semibold text-primary">Nexus P2P — Standalone File</p>
+                    <p className="text-sm font-semibold text-primary">Flare P2P — Standalone File</p>
                     <p className="text-xs text-muted-foreground mt-1">
-                      A self-contained version of Nexus that connects directly between devices using WebRTC — no server, no Wi-Fi config needed. Works anywhere there's an internet connection.
+                      A self-contained version of Flare that connects directly between devices using WebRTC — no server, no Wi-Fi config needed. Works anywhere there's an internet connection.
                     </p>
                   </div>
                 </div>
@@ -352,7 +352,7 @@ export function SettingsDialog() {
                 rel="noopener noreferrer"
                 className="flex items-center justify-center gap-2 w-full py-3 rounded-2xl bg-primary text-white font-semibold text-sm transition-all hover:bg-primary/90"
               >
-                <Wifi className="w-4 h-4" /> Open Nexus P2P
+                <Wifi className="w-4 h-4" /> Open Flare P2P
               </a>
               <p className="text-xs text-muted-foreground text-center">Right-click → Save As to download as a standalone file</p>
             </TabsContent>

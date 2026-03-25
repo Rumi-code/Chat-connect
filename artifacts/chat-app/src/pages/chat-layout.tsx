@@ -40,7 +40,7 @@ function EmptyState() {
         transition={{ delay: 0.35, duration: 0.6 }}
         className="text-4xl font-display font-bold mb-4 z-10"
       >
-        Nexus Platform
+        Flare
       </motion.h2>
 
       <motion.p

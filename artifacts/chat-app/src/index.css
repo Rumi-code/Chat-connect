@@ -50,9 +50,9 @@
   --popover: 224 10% 12%;
   --popover-foreground: 210 40% 98%;
 
-  /* Vibrant Indigo/Blurple */
-  --primary: 250 84% 65%;
-  --primary-foreground: 210 40% 98%;
+  /* Flare — Teal / Cyan */
+  --primary: 174 84% 40%;
+  --primary-foreground: 0 0% 100%;
 
   --secondary: 224 10% 16%;
   --secondary-foreground: 210 40% 98%;
@@ -60,15 +60,15 @@
   --muted: 224 10% 16%;
   --muted-foreground: 215 20% 65%;
 
-  --accent: 280 84% 65%;
-  --accent-foreground: 210 40% 98%;
+  --accent: 190 96% 42%;
+  --accent-foreground: 0 0% 100%;
 
   --destructive: 0 84% 60%;
   --destructive-foreground: 210 40% 98%;
 
   --border: 224 10% 16%;
   --input: 224 10% 16%;
-  --ring: 250 84% 65%;
+  --ring: 174 84% 40%;
 
   --sidebar: 224 10% 8%;
   --radius: 1rem;
