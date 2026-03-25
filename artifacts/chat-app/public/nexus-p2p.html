@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-  <title>Nexus P2P</title>
+  <title>Flare P2P</title>
   <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
   <script src="https://unpkg.com/qrcode@1.5.3/build/qrcode.min.js"></script>
   <style>
@@ -11,7 +11,7 @@
     :root {
       --bg: #0f0f13; --bg2: #16161d; --bg3: #1e1e28;
       --border: rgba(255,255,255,0.08);
-      --primary: #7c3aed; --primary-light: #8b5cf6;
+      --primary: #0d9488; --primary-light: #06b6d4;
       --text: #f0f0f5; --muted: #6b6b80;
       --online: #22c55e; --owner: #f59e0b;
       --danger: #ef4444;
@@ -23,7 +23,7 @@
     /* ── Setup ── */
     #setup { align-items: center; justify-content: center; padding: 24px; }
     .setup-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 24px; padding: 40px 32px; width: 100%; max-width: 380px; text-align: center; }
-    .logo { width: 64px; height: 64px; background: linear-gradient(135deg, #7c3aed, #6d28d9); border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 900; color: white; margin: 0 auto 20px; }
+    .logo { width: 64px; height: 64px; background: linear-gradient(135deg, #0d9488, #06b6d4); border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 900; color: white; margin: 0 auto 20px; }
     .setup-card h1 { font-size: 24px; font-weight: 700; margin-bottom: 6px; }
     .setup-card p { color: var(--muted); font-size: 14px; margin-bottom: 28px; line-height: 1.5; }
     .field { text-align: left; margin-bottom: 16px; }
@@ -64,7 +64,7 @@
     .empty-state { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; color: var(--muted); padding: 32px; text-align: center; }
     .empty-state svg { opacity: 0.3; }
     .empty-state p { font-size: 14px; line-height: 1.6; }
-    .fab { position: fixed; bottom: 24px; right: 24px; width: 56px; height: 56px; border-radius: 50%; background: var(--primary); color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 24px rgba(124,58,237,0.5); transition: all 0.2s; font-size: 24px; }
+    .fab { position: fixed; bottom: 24px; right: 24px; width: 56px; height: 56px; border-radius: 50%; background: var(--primary); color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 24px rgba(13,148,136,0.5); transition: all 0.2s; font-size: 24px; }
     .fab:hover { transform: scale(1.08); }
 
     /* ── Modals ── */
@@ -176,8 +176,8 @@
 <!-- SETUP -->
 <div id="setup" class="screen">
   <div class="setup-card">
-    <div class="logo">N</div>
-    <h1>Nexus P2P</h1>
+    <div class="logo">⚡</div>
+    <h1>Flare P2P</h1>
     <p id="setup-desc">Direct messaging over any network.<br>No servers. No accounts. Just you and your contacts.</p>
     <div class="field">
       <label>Your display name</label>
@@ -230,7 +230,7 @@
     <span style="font-size:14px">📌</span>
     <span class="pinned-text" id="pinned-text"></span>
   </div>
-  <div class="connecting-banner" id="connecting-banner">Reaching out… they need Nexus open too.</div>
+  <div class="connecting-banner" id="connecting-banner">Reaching out… they need Flare open too.</div>
   <div class="messages" id="messages"></div>
   <div class="typing-indicator" id="typing-indicator">
     <div class="dots"><span></span><span></span><span></span></div>
@@ -251,7 +251,7 @@
 <div class="modal-overlay" id="my-id-overlay">
   <div class="modal">
     <div class="modal-handle"></div>
-    <h2>Your Nexus ID</h2>
+    <h2>Your Flare ID</h2>
     <p>Share this with anyone you want to chat with. They scan the QR or paste the code — no configuration needed.</p>
     <div class="qr-wrap"><canvas id="qr-canvas"></canvas></div>
     <div class="peer-id-box">
@@ -268,10 +268,9 @@
   <div class="modal">
     <div class="modal-handle"></div>
     <h2>Add a Contact</h2>
-    <p>Paste their Nexus ID. Ask them to open Nexus and share theirs with you.</p>
+    <p>Paste their Flare ID below. Their name will fill in automatically once they connect.</p>
     <div class="af-form">
-      <div class="field" style="margin:0"><label>Their Nexus ID</label><input id="af-peer-id" type="text" placeholder="Paste their ID…" autocomplete="off" /></div>
-      <div class="field" style="margin:0"><label>Their name</label><input id="af-name" type="text" placeholder="e.g. Jamie" maxlength="32" autocomplete="off" /></div>
+      <div class="field" style="margin:0"><label>Their Flare ID</label><input id="af-peer-id" type="text" placeholder="Paste their ID…" autocomplete="off" /></div>
       <button class="btn btn-primary" id="af-connect-btn">Connect</button>
       <button class="btn btn-secondary" onclick="closeModal('add-friend-overlay')">Cancel</button>
     </div>
@@ -376,7 +375,7 @@ function initSetup() {
   const inp=document.getElementById('setup-name'), btn=document.getElementById('setup-btn');
   const params=new URLSearchParams(window.location.search);
   const acId=params.get('connect'), acName=params.get('name');
-  if (acName) document.getElementById('setup-desc').textContent=`${acName} wants to chat with you on Nexus. Enter your name to connect.`;
+  if (acName) document.getElementById('setup-desc').textContent=`${acName} wants to chat with you on Flare. Enter your name to connect.`;
   btn.addEventListener('click',()=>{
     const name=inp.value.trim(); if (!name){inp.focus();return;}
     S.myName=name; lsSet('nxp_name',name); initPeer(acId,acName);
@@ -420,10 +419,13 @@ function handleConn(conn) {
 
 function handleData(pid, data) {
   switch(data.type) {
-    case 'handshake':
-      ensureContact(pid,data.name);
-      if(data.isOwner){ const c=S.contacts.find(x=>x.id===pid); if(c){c.isOwner=true;saveContacts();renderContactList();} }
+    case 'handshake': {
+      const hc=S.contacts.find(x=>x.id===pid);
+      if(hc){ hc.name=data.name||hc.name; if(data.isOwner)hc.isOwner=true; saveContacts(); renderContactList(); }
+      else { ensureContact(pid,data.name); }
+      if(S.currentPeer===pid){ const ne=document.getElementById('chat-peer-name'); if(ne){ const c2=S.contacts.find(x=>x.id===pid); ne.innerHTML=esc(c2.name)+(c2.isOwner?' <span title="Owner">👑</span>':''); } }
       break;
+    }
     case 'msg':
       receiveMessage(pid,data); break;
     case 'typing':
@@ -614,7 +616,7 @@ function receiveMessage(pid, data) {
   saveMsg(pid,msg);
   const inChat=S.currentPeer===pid&&document.getElementById('chat').classList.contains('active');
   if(inChat){ renderMessages(); sendReadReceipt(pid); }
-  else { S.unread[pid]=(S.unread[pid]||0)+1; lsSet('nxp_unread',S.unread); renderContactList(); const u=Object.values(S.unread).reduce((a,b)=>a+b,0); document.title=u?`(${u}) Nexus P2P`:'Nexus P2P'; }
+  else { S.unread[pid]=(S.unread[pid]||0)+1; lsSet('nxp_unread',S.unread); renderContactList(); const u=Object.values(S.unread).reduce((a,b)=>a+b,0); document.title=u?`(${u}) Flare P2P`:'Flare P2P'; }
 }
 
 function sendMessage() {
@@ -786,7 +788,7 @@ function openMyIdModal() {
 function copyId(){ navigator.clipboard.writeText(S.myId).then(()=>{ const b=document.getElementById('copy-id-btn'); b.textContent='Copied!'; setTimeout(()=>b.textContent='Copy',2000); }); }
 function shareLink(){
   const url=`${location.href.split('?')[0]}?connect=${S.myId}&name=${encodeURIComponent(S.myName)}`;
-  if(navigator.share) navigator.share({title:'Chat with me on Nexus',url});
+  if(navigator.share) navigator.share({title:'Chat with me on Flare',url});
   else navigator.clipboard.writeText(url).then(()=>toast('Link copied!'));
 }
 
@@ -794,10 +796,9 @@ function shareLink(){
 function openAddFriendModal(){ openModal('add-friend-overlay'); }
 function doAddFriend(){
   const id=document.getElementById('af-peer-id').value.trim();
-  const name=document.getElementById('af-name').value.trim()||'Friend';
   if(!id){document.getElementById('af-peer-id').focus();return;}
-  if(addContact(id,name)){ closeModal('add-friend-overlay'); renderContactList(); openChat(id); }
-  document.getElementById('af-peer-id').value=''; document.getElementById('af-name').value='';
+  if(addContact(id,'Connecting…')){ closeModal('add-friend-overlay'); renderContactList(); openChat(id); }
+  document.getElementById('af-peer-id').value='';
 }
 
 // ─── Contact status update ────────────────────────────────────────────────────
