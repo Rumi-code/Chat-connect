@@ -1,14 +1,13 @@
 import { useState, useRef, useEffect, useCallback, createContext, useContext } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Bot, Sparkles, Send, Mic, MicOff, Phone, PhoneOff, Plus, Trash2, Settings, LogOut, KeyRound, Download, Check, Palette } from "lucide-react";
+import { Bot, Sparkles, Send, Mic, MicOff, Phone, PhoneOff, Plus, Trash2, Settings, LogOut, Download, Check, Palette } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import {
-  getUser, saveUser, createUser,
+  getUser, createUser,
   getConversations, createConversation, getConversation,
   addMessage, deleteConversation,
   getSettings, saveSetting,
@@ -43,13 +42,11 @@ const AppCtx = createContext<{
 // ── Welcome / Auth Screen ─────────────────────────────────────────────────────
 function WelcomeScreen({ onLogin }: { onLogin: (u: LocalUser) => void }) {
   const [name, setName] = useState("");
-  const [apiKey, setApiKey] = useState("");
-  const [showKey, setShowKey] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return;
-    onLogin(createUser(name.trim(), apiKey.trim()));
+    onLogin(createUser(name.trim()));
   };
 
   return (
@@ -66,7 +63,7 @@ function WelcomeScreen({ onLogin }: { onLogin: (u: LocalUser) => void }) {
           </div>
           <div>
             <h1 className="text-2xl font-bold font-display">Flare AI</h1>
-            <p className="text-sm text-muted-foreground">Standalone — no server required</p>
+            <p className="text-sm text-muted-foreground">AI chat — no API key needed</p>
           </div>
         </div>
 
@@ -81,33 +78,6 @@ function WelcomeScreen({ onLogin }: { onLogin: (u: LocalUser) => void }) {
             />
           </div>
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium flex items-center gap-2">
-              <KeyRound className="w-4 h-4 text-accent" />
-              OpenAI API Key
-              <span className="text-xs text-muted-foreground font-normal">(for AI chat)</span>
-            </label>
-            <div className="relative">
-              <Input
-                type={showKey ? "text" : "password"}
-                placeholder="sk-..."
-                value={apiKey}
-                onChange={e => setApiKey(e.target.value)}
-                className="bg-white/5 border-white/10 rounded-xl pr-16"
-              />
-              <button
-                type="button"
-                onClick={() => setShowKey(v => !v)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground hover:text-foreground"
-              >
-                {showKey ? "Hide" : "Show"}
-              </button>
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Your key stays in your browser — never sent anywhere except OpenAI. You can skip this and add it later in Settings.
-            </p>
-          </div>
-
           <Button type="submit" disabled={!name.trim()} className="w-full h-12 rounded-2xl text-base bg-primary hover:bg-primary/90 shadow-lg shadow-primary/30">
             Get Started →
           </Button>
@@ -119,16 +89,7 @@ function WelcomeScreen({ onLogin }: { onLogin: (u: LocalUser) => void }) {
 
 // ── Settings Dialog ───────────────────────────────────────────────────────────
 function SettingsDialog() {
-  const { user, themeId, setTheme } = useContext(AppCtx);
-  const [apiKey, setApiKey] = useState(user.apiKey);
-  const [saved, setSaved] = useState(false);
-
-  const saveKey = () => {
-    saveUser({ ...user, apiKey });
-    user.apiKey = apiKey;
-    setSaved(true);
-    setTimeout(() => setSaved(false), 1500);
-  };
+  const { themeId, setTheme } = useContext(AppCtx);
 
   return (
     <Dialog>
@@ -143,47 +104,22 @@ function SettingsDialog() {
             <Settings className="w-5 h-5 text-primary" /> Settings
           </DialogTitle>
         </DialogHeader>
-        <Tabs defaultValue="theme" className="p-6 pt-4">
-          <TabsList className="w-full bg-white/5 border border-white/10 rounded-2xl p-1 mb-6">
-            <TabsTrigger value="theme" className="flex-1 rounded-xl data-[state=active]:bg-primary/20 data-[state=active]:text-primary">
-              <Palette className="w-4 h-4 mr-2" /> Theme
-            </TabsTrigger>
-            <TabsTrigger value="api" className="flex-1 rounded-xl data-[state=active]:bg-primary/20 data-[state=active]:text-primary">
-              <KeyRound className="w-4 h-4 mr-2" /> API Key
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="theme" className="mt-0 space-y-3">
-            <p className="text-sm text-muted-foreground">Choose your color theme.</p>
-            <div className="grid grid-cols-3 gap-3">
-              {THEMES.map(t => (
-                <button key={t.id} onClick={() => setTheme(t.id)}
-                  className={cn("flex flex-col items-center gap-2 p-3 rounded-2xl border-2 transition-all",
-                    themeId === t.id ? "border-primary bg-primary/10" : "border-white/10 hover:border-white/30 hover:bg-white/5"
-                  )}>
-                  <div className="w-10 h-10 rounded-xl border-2 border-white/20 flex items-center justify-center" style={{ backgroundColor: t.preview }}>
-                    {themeId === t.id && <Check className="w-5 h-5 text-white" />}
-                  </div>
-                  <span className="text-xs font-medium">{t.name}</span>
-                </button>
-              ))}
-            </div>
-          </TabsContent>
-
-          <TabsContent value="api" className="mt-0 space-y-4">
-            <p className="text-sm text-muted-foreground">Your OpenAI API key — stored only in your browser.</p>
-            <div className="space-y-2">
-              <Input type="password" placeholder="sk-..." value={apiKey}
-                onChange={e => setApiKey(e.target.value)} className="bg-white/5 border-white/10 rounded-xl" />
-              <Button onClick={saveKey} className="w-full rounded-xl" variant={saved ? "secondary" : "default"}>
-                {saved ? "✓ Saved" : "Save Key"}
-              </Button>
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Get a key at <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener" className="underline text-accent">platform.openai.com</a>. Used for AI chat only.
-            </p>
-          </TabsContent>
-        </Tabs>
+        <div className="p-6 pt-4 space-y-3">
+          <p className="text-sm text-muted-foreground">Choose your color theme.</p>
+          <div className="grid grid-cols-3 gap-3">
+            {THEMES.map(t => (
+              <button key={t.id} onClick={() => setTheme(t.id)}
+                className={cn("flex flex-col items-center gap-2 p-3 rounded-2xl border-2 transition-all",
+                  themeId === t.id ? "border-primary bg-primary/10" : "border-white/10 hover:border-white/30 hover:bg-white/5"
+                )}>
+                <div className="w-10 h-10 rounded-xl border-2 border-white/20 flex items-center justify-center" style={{ backgroundColor: t.preview }}>
+                  {themeId === t.id && <Check className="w-5 h-5 text-white" />}
+                </div>
+                <span className="text-xs font-medium">{t.name}</span>
+              </button>
+            ))}
+          </div>
+        </div>
       </DialogContent>
     </Dialog>
   );
@@ -214,19 +150,13 @@ function AIChatArea({ convId }: { convId: string }) {
   }, [conv?.messages, streamChunk, voiceLog]);
 
   const streamAI = async (messages: {role:string;content:string}[]) => {
-    const key = user.apiKey;
-    if (!key) throw new Error("No API key. Add one in Settings.");
-
-    const res = await fetch("https://api.openai.com/v1/chat/completions", {
+    const res = await fetch("/api/openai/chat/stream", {
       method: "POST",
-      headers: { "Authorization": `Bearer ${key}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ model: "gpt-4o", messages, stream: true }),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ messages }),
     });
 
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err?.error?.message || `OpenAI error ${res.status}`);
-    }
+    if (!res.ok) throw new Error(`AI error ${res.status}`);
 
     const reader = res.body!.getReader();
     const decoder = new TextDecoder();
@@ -241,11 +171,9 @@ function AIChatArea({ convId }: { convId: string }) {
       buf = lines.pop() || "";
       for (const line of lines) {
         if (!line.startsWith("data: ")) continue;
-        const data = line.slice(6).trim();
-        if (data === "[DONE]") break;
         try {
-          const c = JSON.parse(data)?.choices?.[0]?.delta?.content;
-          if (c) { full += c; setStreamChunk(prev => prev + c); }
+          const parsed = JSON.parse(line.slice(6).trim());
+          if (parsed.content) { full += parsed.content; setStreamChunk(prev => prev + parsed.content); }
         } catch {}
       }
     }
@@ -257,11 +185,6 @@ function AIChatArea({ convId }: { convId: string }) {
     if (!content.trim() || isStreaming || !conv) return;
     const text = content;
     setContent("");
-
-    if (!user.apiKey) {
-      alert("Please add your OpenAI API key in Settings first.");
-      return;
-    }
 
     addMessage(convId, { role: "user", content: text });
     reload();
@@ -303,12 +226,17 @@ function AIChatArea({ convId }: { convId: string }) {
         if (blob.size < 100) { setVoiceState("active"); return; }
         setVoiceState("processing");
         try {
-          // STT with OpenAI Whisper
-          const fd = new FormData();
-          fd.append("file", blob, "audio.webm");
-          fd.append("model", "whisper-1");
-          const sttRes = await fetch("https://api.openai.com/v1/audio/transcriptions", {
-            method: "POST", headers: { "Authorization": `Bearer ${user.apiKey}` }, body: fd
+          // STT via server
+          const base64 = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve((reader.result as string).split(",")[1]);
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+          });
+          const sttRes = await fetch("/api/openai/transcribe", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ audio: base64 }),
           });
           if (!sttRes.ok) throw new Error("STT failed");
           const { text: userText } = await sttRes.json();
@@ -328,11 +256,11 @@ function AIChatArea({ convId }: { convId: string }) {
           reload();
           refreshConversations();
 
-          // TTS with OpenAI
-          const ttsRes = await fetch("https://api.openai.com/v1/audio/speech", {
+          // TTS via server
+          const ttsRes = await fetch("/api/openai/tts", {
             method: "POST",
-            headers: { "Authorization": `Bearer ${user.apiKey}`, "Content-Type": "application/json" },
-            body: JSON.stringify({ model: "tts-1", voice: "alloy", input: aiText }),
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text: aiText, voice: "alloy" }),
           });
           if (ttsRes.ok) {
             const audioBlob = await ttsRes.blob();
@@ -354,7 +282,7 @@ function AIChatArea({ convId }: { convId: string }) {
       alert("Microphone access denied.");
       setVoiceState("active");
     }
-  }, [voiceState, user.apiKey, convId]);
+  }, [voiceState, convId]);
 
   const stopRecording = useCallback(() => {
     if (mediaRef.current?.state === "recording") mediaRef.current.stop();
@@ -560,7 +488,7 @@ export default function StandaloneApp() {
             </Avatar>
             <div className="flex-1 min-w-0">
               <h2 className="font-display font-bold text-base truncate">{user.name}</h2>
-              <p className="text-xs text-muted-foreground">{user.apiKey ? "API key set ✓" : "No API key"}</p>
+              <p className="text-xs text-muted-foreground">AI ready ✓</p>
             </div>
             <SettingsDialog />
           </div>

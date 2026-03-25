@@ -1,6 +1,5 @@
 export interface LocalUser {
   name: string;
-  apiKey: string;
   avatarColor: string;
 }
 
@@ -28,8 +27,8 @@ export function getUser(): LocalUser | null {
 export function saveUser(u: LocalUser) {
   localStorage.setItem(key("user"), JSON.stringify(u));
 }
-export function createUser(name: string, apiKey: string): LocalUser {
-  const user: LocalUser = { name, apiKey, avatarColor: COLORS[Math.floor(Math.random() * COLORS.length)] };
+export function createUser(name: string): LocalUser {
+  const user: LocalUser = { name, avatarColor: COLORS[Math.floor(Math.random() * COLORS.length)] };
   saveUser(user);
   return user;
 }
