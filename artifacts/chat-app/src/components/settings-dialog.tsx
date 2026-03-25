@@ -80,21 +80,12 @@ export function SettingsDialog() {
     timestampMode, setTimestampMode,
     soundEnabled, setSoundEnabled,
     compactMode, setCompactMode,
-    serverUrl, setServerUrl,
   } = useSettings();
   const { user } = useAuth();
   const { data: convos = [] } = useListConversations({ userId: user?.id ?? 0 });
   const [selectedConvoId, setSelectedConvoId] = useState<number | null>(null);
-  const [urlInput, setUrlInput] = useState(serverUrl);
-  const [urlSaved, setUrlSaved] = useState(false);
 
   const getOtherUser = (members: any[]) => members.find((m: any) => m.id !== user?.id) || members[0];
-
-  const handleSaveUrl = () => {
-    setServerUrl(urlInput);
-    setUrlSaved(true);
-    setTimeout(() => setUrlSaved(false), 2000);
-  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -323,63 +314,47 @@ export function SettingsDialog() {
               )}
             </TabsContent>
 
-            {/* NETWORK / LAN TAB */}
+            {/* NETWORK / P2P TAB */}
             <TabsContent value="network" className="p-6 space-y-4 mt-0">
               <div className="p-4 rounded-2xl bg-primary/10 border border-primary/20">
                 <div className="flex items-start gap-3">
                   <Wifi className="w-5 h-5 text-primary mt-0.5 shrink-0" />
                   <div>
-                    <p className="text-sm font-semibold text-primary">Local Network Mode</p>
+                    <p className="text-sm font-semibold text-primary">Nexus P2P — Standalone File</p>
                     <p className="text-xs text-muted-foreground mt-1">
-                      Use this when running Nexus on your own device. People on the same Wi-Fi can open the app and connect to your server using your device's local IP address (e.g. <code className="bg-white/10 px-1 rounded">http://192.168.1.5:8080</code>).
+                      A self-contained version of Nexus that connects directly between devices using WebRTC — no server, no Wi-Fi config needed. Works anywhere there's an internet connection.
                     </p>
                   </div>
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <p className="text-xs uppercase tracking-wider font-semibold text-muted-foreground">Server URL</p>
-                <p className="text-xs text-muted-foreground">
-                  Leave blank to use the default (current site). Set this to your device's LAN IP when using the standalone file.
-                </p>
-                <div className="flex gap-2">
-                  <input
-                    type="url"
-                    value={urlInput}
-                    onChange={e => setUrlInput(e.target.value)}
-                    placeholder="http://192.168.x.x:8080"
-                    className="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-primary/50 transition-colors"
-                  />
-                  <Button
-                    size="sm"
-                    onClick={handleSaveUrl}
-                    className="rounded-xl shrink-0"
-                  >
-                    {urlSaved ? <><Check className="w-3.5 h-3.5 mr-1" /> Saved</> : "Save"}
-                  </Button>
+              <div className="space-y-3">
+                <p className="text-xs uppercase tracking-wider font-semibold text-muted-foreground">How it works</p>
+                <div className="space-y-2">
+                  {[
+                    { n: "1", t: "Download the P2P file and open it in your browser." },
+                    { n: "2", t: "Enter your name — you get a unique ID automatically." },
+                    { n: "3", t: "Tap your QR code or copy your ID and share it once with the person you want to chat with." },
+                    { n: "4", t: "They open the same file, paste your ID, and you're connected. Messages flow directly between you." },
+                    { n: "5", t: "Next time you both open the file, it auto-reconnects — nothing to configure." },
+                  ].map(({ n, t }) => (
+                    <div key={n} className="flex gap-3 text-sm">
+                      <span className="w-6 h-6 rounded-full bg-primary/20 text-primary text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">{n}</span>
+                      <p className="text-muted-foreground">{t}</p>
+                    </div>
+                  ))}
                 </div>
-                {serverUrl && (
-                  <div className="flex items-center gap-2 mt-1">
-                    <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-                    <p className="text-xs text-green-400">Connected to {serverUrl}</p>
-                    <button
-                      onClick={() => { setUrlInput(""); setServerUrl(""); }}
-                      className="ml-auto text-xs text-muted-foreground hover:text-red-400 transition-colors"
-                    >
-                      Clear
-                    </button>
-                  </div>
-                )}
               </div>
 
-              <div className="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-2">
-                <p className="text-sm font-medium">How to find your local IP</p>
-                <ul className="text-xs text-muted-foreground space-y-1 list-disc list-inside">
-                  <li><span className="font-medium text-foreground">Windows:</span> Run <code className="bg-white/10 px-1 rounded">ipconfig</code> → IPv4 Address</li>
-                  <li><span className="font-medium text-foreground">Mac/Linux:</span> Run <code className="bg-white/10 px-1 rounded">ifconfig</code> → inet address</li>
-                  <li><span className="font-medium text-foreground">Android/iPhone:</span> Settings → Wi-Fi → tap network → IP address</li>
-                </ul>
-              </div>
+              <a
+                href="/nexus-p2p.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 w-full py-3 rounded-2xl bg-primary text-white font-semibold text-sm transition-all hover:bg-primary/90"
+              >
+                <Wifi className="w-4 h-4" /> Open Nexus P2P
+              </a>
+              <p className="text-xs text-muted-foreground text-center">Right-click → Save As to download as a standalone file</p>
             </TabsContent>
 
           </div>

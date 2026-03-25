@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Nexus P2P</title>
+  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+  <script src="https://unpkg.com/qrcode@1.5.3/build/qrcode.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0f0f13;
+      --bg2: #16161d;
+      --bg3: #1e1e28;
+      --border: rgba(255,255,255,0.08);
+      --primary: #7c3aed;
+      --primary-light: #8b5cf6;
+      --text: #f0f0f5;
+      --muted: #6b6b80;
+      --online: #22c55e;
+    }
+    html, body { height: 100%; background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 15px; }
+
+    /* Layout */
+    .screen { display: none; height: 100vh; flex-direction: column; }
+    .screen.active { display: flex; }
+
+    /* Setup screen */
+    #setup { align-items: center; justify-content: center; padding: 24px; }
+    .setup-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 24px; padding: 40px 32px; width: 100%; max-width: 380px; text-align: center; }
+    .logo { width: 64px; height: 64px; background: linear-gradient(135deg, #7c3aed, #6d28d9); border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 900; color: white; margin: 0 auto 20px; letter-spacing: -2px; }
+    .setup-card h1 { font-size: 24px; font-weight: 700; margin-bottom: 6px; }
+    .setup-card p { color: var(--muted); font-size: 14px; margin-bottom: 28px; line-height: 1.5; }
+    .field { text-align: left; margin-bottom: 16px; }
+    .field label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
+    .field input { width: 100%; background: var(--bg3); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; font-size: 15px; color: var(--text); outline: none; transition: border-color 0.15s; }
+    .field input:focus { border-color: var(--primary); }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 13px 24px; border-radius: 14px; font-size: 15px; font-weight: 600; cursor: pointer; border: none; transition: all 0.15s; width: 100%; }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-light); }
+    .btn-secondary { background: var(--bg3); color: var(--text); border: 1px solid var(--border); }
+    .btn-secondary:hover { background: rgba(255,255,255,0.08); }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* Home screen */
+    #home { }
+    .home-header { display: flex; align-items: center; gap: 12px; padding: 16px 16px 12px; background: var(--bg2); border-bottom: 1px solid var(--border); }
+    .my-avatar { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 15px; color: white; flex-shrink: 0; }
+    .my-name { font-weight: 600; font-size: 15px; flex: 1; }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--online); }
+    .icon-btn { background: none; border: none; color: var(--muted); cursor: pointer; padding: 6px; border-radius: 10px; transition: all 0.15s; display: flex; align-items: center; }
+    .icon-btn:hover { background: rgba(255,255,255,0.08); color: var(--text); }
+    .contact-list { flex: 1; overflow-y: auto; }
+    .contact-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; cursor: pointer; border-bottom: 1px solid var(--border); transition: background 0.1s; position: relative; }
+    .contact-item:hover { background: rgba(255,255,255,0.04); }
+    .contact-item.active { background: rgba(124,58,237,0.1); }
+    .avatar { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 17px; color: white; flex-shrink: 0; position: relative; }
+    .avatar-badge { position: absolute; bottom: 0; right: 0; width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--bg); background: var(--muted); }
+    .avatar-badge.online { background: var(--online); }
+    .contact-info { flex: 1; min-width: 0; }
+    .contact-name { font-weight: 600; font-size: 14px; }
+    .contact-preview { font-size: 13px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+    .contact-meta { text-align: right; flex-shrink: 0; }
+    .contact-time { font-size: 11px; color: var(--muted); }
+    .unread-badge { background: var(--primary); color: white; border-radius: 999px; font-size: 11px; font-weight: 700; padding: 2px 7px; margin-top: 4px; display: inline-block; }
+    .empty-state { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; color: var(--muted); padding: 32px; text-align: center; }
+    .empty-state svg { opacity: 0.3; }
+    .empty-state p { font-size: 14px; line-height: 1.6; }
+    .fab { position: fixed; bottom: 24px; right: 24px; width: 56px; height: 56px; border-radius: 50%; background: var(--primary); color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 24px rgba(124,58,237,0.5); transition: all 0.2s; font-size: 24px; }
+    .fab:hover { transform: scale(1.08); background: var(--primary-light); }
+
+    /* My ID screen (modal) */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 100; align-items: flex-end; justify-content: center; }
+    .modal-overlay.active { display: flex; }
+    .modal { background: var(--bg2); border-radius: 24px 24px 0 0; width: 100%; max-width: 480px; padding: 24px; }
+    .modal-handle { width: 36px; height: 4px; background: var(--border); border-radius: 99px; margin: 0 auto 20px; }
+    .modal h2 { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+    .modal p { font-size: 13px; color: var(--muted); margin-bottom: 20px; line-height: 1.5; }
+    .qr-wrap { display: flex; justify-content: center; margin-bottom: 20px; }
+    .qr-wrap canvas { border-radius: 12px; }
+    .peer-id-box { background: var(--bg3); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .peer-id-text { flex: 1; font-family: monospace; font-size: 13px; color: var(--primary-light); word-break: break-all; }
+    .copy-btn { background: var(--primary); color: white; border: none; border-radius: 10px; padding: 7px 12px; font-size: 12px; font-weight: 600; cursor: pointer; flex-shrink: 0; transition: all 0.15s; }
+    .copy-btn:hover { background: var(--primary-light); }
+
+    /* Add friend screen */
+    #add-friend-modal { }
+    .af-form { display: flex; flex-direction: column; gap: 12px; }
+
+    /* Chat screen */
+    #chat { }
+    .chat-header { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: var(--bg2); border-bottom: 1px solid var(--border); }
+    .back-btn { background: none; border: none; color: var(--muted); cursor: pointer; padding: 4px; border-radius: 8px; display: flex; align-items: center; }
+    .back-btn:hover { color: var(--text); }
+    .chat-header-info { flex: 1; }
+    .chat-header-name { font-weight: 600; font-size: 15px; }
+    .chat-header-status { font-size: 12px; color: var(--muted); }
+    .chat-header-status.online { color: var(--online); }
+    .messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 6px; }
+    .msg { max-width: 80%; padding: 10px 14px; border-radius: 18px; font-size: 14px; line-height: 1.5; word-break: break-word; }
+    .msg.mine { align-self: flex-end; background: var(--primary); color: white; border-bottom-right-radius: 5px; }
+    .msg.theirs { align-self: flex-start; background: var(--bg3); color: var(--text); border-bottom-left-radius: 5px; }
+    .msg-meta { font-size: 10px; opacity: 0.6; margin-top: 3px; text-align: right; }
+    .msg-pending { font-size: 10px; opacity: 0.5; margin-top: 3px; text-align: right; }
+    .msg-group { display: flex; flex-direction: column; }
+    .msg-group.mine { align-items: flex-end; }
+    .msg-group.theirs { align-items: flex-start; }
+    .chat-input-area { padding: 12px 16px; background: var(--bg2); border-top: 1px solid var(--border); display: flex; align-items: flex-end; gap: 10px; }
+    .chat-input { flex: 1; background: var(--bg3); border: 1px solid var(--border); border-radius: 22px; padding: 10px 16px; font-size: 14px; color: var(--text); outline: none; resize: none; max-height: 120px; line-height: 1.5; font-family: inherit; }
+    .chat-input:focus { border-color: var(--primary); }
+    .send-btn { width: 42px; height: 42px; border-radius: 50%; background: var(--primary); color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.15s; }
+    .send-btn:hover { background: var(--primary-light); }
+    .send-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+    .day-label { text-align: center; font-size: 11px; color: var(--muted); padding: 8px 0; }
+
+    /* Connecting banner */
+    .connecting-banner { background: rgba(124,58,237,0.15); border-bottom: 1px solid rgba(124,58,237,0.3); padding: 8px 16px; font-size: 12px; color: var(--primary-light); text-align: center; display: none; }
+    .connecting-banner.visible { display: block; }
+
+    /* Toast */
+    .toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: var(--bg3); border: 1px solid var(--border); border-radius: 12px; padding: 10px 18px; font-size: 13px; z-index: 200; opacity: 0; transition: opacity 0.2s; pointer-events: none; white-space: nowrap; }
+    .toast.show { opacity: 1; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+  </style>
+</head>
+<body>
+
+<!-- SETUP SCREEN -->
+<div id="setup" class="screen">
+  <div class="setup-card">
+    <div class="logo">N</div>
+    <h1>Nexus P2P</h1>
+    <p>Direct messaging over any network.<br>No servers. No accounts. Just you and your contacts.</p>
+    <div class="field">
+      <label>Your display name</label>
+      <input id="setup-name" type="text" placeholder="e.g. Alex" maxlength="32" autocomplete="off" />
+    </div>
+    <button class="btn btn-primary" id="setup-btn">Get Started</button>
+  </div>
+</div>
+
+<!-- HOME SCREEN -->
+<div id="home" class="screen">
+  <div class="home-header">
+    <div class="my-avatar" id="my-avatar"></div>
+    <span class="my-name" id="my-name-label"></span>
+    <div class="status-dot"></div>
+    <button class="icon-btn" id="show-my-id-btn" title="My ID / QR Code">
+      <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM17 17h3M17 14v3"/></svg>
+    </button>
+  </div>
+
+  <div id="contact-list-wrap" class="contact-list" style="display:none;overflow-y:auto;flex:1;"></div>
+
+  <div id="empty-home" class="empty-state">
+    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    <p>No contacts yet.<br>Tap <strong>+</strong> to add someone or share your ID so they can find you.</p>
+  </div>
+
+  <button class="fab" id="add-friend-btn">+</button>
+</div>
+
+<!-- MY ID MODAL -->
+<div class="modal-overlay" id="my-id-overlay">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h2>Your Nexus ID</h2>
+    <p>Share this with anyone you want to chat with. They can scan the QR or paste the code to connect directly to you — no Wi-Fi configuration needed.</p>
+    <div class="qr-wrap"><canvas id="qr-canvas"></canvas></div>
+    <div class="peer-id-box">
+      <span class="peer-id-text" id="my-peer-id-display"></span>
+      <button class="copy-btn" id="copy-id-btn">Copy</button>
+    </div>
+    <button class="btn btn-secondary" id="share-link-btn">Share as link…</button>
+    <br><br>
+    <button class="btn btn-secondary" onclick="closeMyIdModal()">Done</button>
+  </div>
+</div>
+
+<!-- ADD FRIEND MODAL -->
+<div class="modal-overlay" id="add-friend-overlay">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h2>Add a Contact</h2>
+    <p>Paste their Nexus ID below. Ask them to open Nexus and share their ID with you.</p>
+    <div class="af-form">
+      <div class="field" style="margin:0">
+        <label>Their Nexus ID</label>
+        <input id="af-peer-id" type="text" placeholder="Paste their ID here…" autocomplete="off" />
+      </div>
+      <div class="field" style="margin:0">
+        <label>Their name (so you recognise them)</label>
+        <input id="af-name" type="text" placeholder="e.g. Jamie" maxlength="32" autocomplete="off" />
+      </div>
+      <button class="btn btn-primary" id="af-connect-btn">Connect</button>
+      <button class="btn btn-secondary" onclick="closeAddFriendModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- CHAT SCREEN -->
+<div id="chat" class="screen">
+  <div class="chat-header">
+    <button class="back-btn" id="back-btn">
+      <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div class="avatar" id="chat-avatar" style="width:36px;height:36px;font-size:14px;"></div>
+    <div class="chat-header-info" style="margin-left:8px;">
+      <div class="chat-header-name" id="chat-peer-name"></div>
+      <div class="chat-header-status" id="chat-peer-status">Connecting…</div>
+    </div>
+  </div>
+  <div class="connecting-banner" id="connecting-banner">Trying to reach this person… they need to have Nexus open too.</div>
+  <div class="messages" id="messages"></div>
+  <div class="chat-input-area">
+    <textarea class="chat-input" id="chat-input" placeholder="Message…" rows="1"></textarea>
+    <button class="send-btn" id="send-btn">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+    </button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── State ────────────────────────────────────────────────────────────────────
+const S = {
+  peer: null,
+  myId: null,
+  myName: null,
+  contacts: [],      // [{id, name, color}]
+  conns: {},         // peerId → DataConnection
+  unread: {},        // peerId → count
+  currentPeer: null,
+};
+
+// ─── Persistence ──────────────────────────────────────────────────────────────
+function ls(key, fallback) {
+  try { const v = localStorage.getItem(key); return v !== null ? JSON.parse(v) : fallback; } catch { return fallback; }
+}
+function lsSet(key, value) { localStorage.setItem(key, JSON.stringify(value)); }
+
+function loadMessages(peerId) { return ls(`nxp_msgs_${peerId}`, []); }
+function saveMessage(peerId, msg) {
+  const msgs = loadMessages(peerId);
+  msgs.push(msg);
+  if (msgs.length > 500) msgs.splice(0, msgs.length - 500);
+  lsSet(`nxp_msgs_${peerId}`, msgs);
+}
+
+// ─── Avatar colors ────────────────────────────────────────────────────────────
+const COLORS = ["#7c3aed","#2563eb","#0891b2","#059669","#d97706","#dc2626","#db2777","#7c3aed"];
+function colorFor(id) { let h = 0; for (const c of id) h = (h * 31 + c.charCodeAt(0)) & 0xffff; return COLORS[h % COLORS.length]; }
+function initials(name) { return name.split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2); }
+
+// ─── Screens ──────────────────────────────────────────────────────────────────
+function showScreen(id) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
+
+// ─── Toast ────────────────────────────────────────────────────────────────────
+let toastTimer;
+function toast(msg) {
+  const el = document.getElementById("toast");
+  el.textContent = msg;
+  el.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove("show"), 2500);
+}
+
+// ─── Time formatting ──────────────────────────────────────────────────────────
+function fmt(ts) {
+  const d = new Date(ts);
+  const now = new Date();
+  const sameDay = d.toDateString() === now.toDateString();
+  if (sameDay) return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  return d.toLocaleDateString([], { month: "short", day: "numeric" });
+}
+
+// ─── Setup Screen ─────────────────────────────────────────────────────────────
+function initSetup() {
+  const inp = document.getElementById("setup-name");
+  const btn = document.getElementById("setup-btn");
+
+  // Auto-fill if coming from a share link
+  const params = new URLSearchParams(window.location.search);
+  const autoConnectId = params.get("connect");
+  const autoConnectName = params.get("name");
+
+  btn.addEventListener("click", () => {
+    const name = inp.value.trim();
+    if (!name) { inp.focus(); return; }
+    S.myName = name;
+    lsSet("nxp_name", name);
+    initPeer(autoConnectId, autoConnectName);
+  });
+  inp.addEventListener("keydown", e => { if (e.key === "Enter") btn.click(); });
+  inp.focus();
+}
+
+// ─── PeerJS ───────────────────────────────────────────────────────────────────
+function initPeer(autoConnectId, autoConnectName) {
+  const savedId = ls("nxp_peer_id", null);
+  S.peer = new Peer(savedId || undefined, {
+    config: {
+      iceServers: [
+        { urls: "stun:stun.l.google.com:19302" },
+        { urls: "stun:stun1.l.google.com:19302" },
+      ]
+    }
+  });
+
+  S.peer.on("open", id => {
+    S.myId = id;
+    lsSet("nxp_peer_id", id);
+    showHome();
+    reconnectAll();
+    if (autoConnectId && autoConnectId !== id) {
+      addContact(autoConnectId, autoConnectName || "Friend");
+      openChat(autoConnectId);
+    }
+  });
+
+  S.peer.on("connection", conn => {
+    handleConnection(conn, true);
+  });
+
+  S.peer.on("error", err => {
+    if (err.type === "unavailable-id") {
+      // ID taken (rare), generate new one
+      localStorage.removeItem("nxp_peer_id");
+      location.reload();
+    }
+  });
+}
+
+function connectToPeer(peerId) {
+  if (S.conns[peerId]?.open) return S.conns[peerId];
+  const conn = S.peer.connect(peerId, { reliable: true });
+  handleConnection(conn, false);
+  return conn;
+}
+
+function handleConnection(conn, isIncoming) {
+  const peerId = conn.peer;
+  S.conns[peerId] = conn;
+
+  conn.on("open", () => {
+    // Send a handshake with our name
+    conn.send({ type: "handshake", name: S.myName, id: S.myId });
+    updateContactStatus(peerId, true);
+    // Flush any queued messages
+    flushQueue(peerId);
+  });
+
+  conn.on("data", data => {
+    if (data.type === "handshake") {
+      // Ensure this person is in our contacts
+      ensureContact(peerId, data.name);
+    } else if (data.type === "msg") {
+      receiveMessage(peerId, data);
+    }
+  });
+
+  conn.on("close", () => {
+    delete S.conns[peerId];
+    updateContactStatus(peerId, false);
+  });
+
+  conn.on("error", () => {
+    delete S.conns[peerId];
+    updateContactStatus(peerId, false);
+  });
+}
+
+function reconnectAll() {
+  S.contacts.forEach(c => {
+    if (!S.conns[c.id]) connectToPeer(c.id);
+  });
+}
+
+// Queue messages for offline contacts
+const msgQueue = {}; // peerId → [msg]
+function queueMessage(peerId, msg) {
+  msgQueue[peerId] = msgQueue[peerId] || [];
+  msgQueue[peerId].push(msg);
+}
+function flushQueue(peerId) {
+  const q = msgQueue[peerId] || [];
+  while (q.length) {
+    const msg = q.shift();
+    try { S.conns[peerId].send(msg); } catch {}
+  }
+}
+
+// ─── Contacts ─────────────────────────────────────────────────────────────────
+function loadContacts() {
+  S.contacts = ls("nxp_contacts", []);
+}
+function saveContacts() {
+  lsSet("nxp_contacts", S.contacts);
+}
+function addContact(id, name) {
+  id = id.trim();
+  name = name.trim() || "Unknown";
+  if (id === S.myId) { toast("That's your own ID!"); return false; }
+  if (!S.contacts.find(c => c.id === id)) {
+    const color = colorFor(id);
+    S.contacts.push({ id, name, color });
+    saveContacts();
+  }
+  return true;
+}
+function ensureContact(peerId, name) {
+  if (!S.contacts.find(c => c.id === peerId)) {
+    const color = colorFor(peerId);
+    S.contacts.push({ id: peerId, name: name || "Unknown", color });
+    saveContacts();
+    renderContactList();
+  }
+}
+
+// ─── Home Screen ──────────────────────────────────────────────────────────────
+function showHome() {
+  loadContacts();
+  S.unread = ls("nxp_unread", {});
+
+  // My avatar
+  const color = colorFor(S.myId);
+  const av = document.getElementById("my-avatar");
+  av.style.background = color;
+  av.textContent = initials(S.myName);
+  document.getElementById("my-name-label").textContent = S.myName;
+
+  renderContactList();
+  showScreen("home");
+
+  document.getElementById("show-my-id-btn").onclick = openMyIdModal;
+  document.getElementById("add-friend-btn").onclick = openAddFriendModal;
+  document.getElementById("back-btn").onclick = () => { S.currentPeer = null; showScreen("home"); };
+  document.getElementById("copy-id-btn").onclick = copyId;
+  document.getElementById("share-link-btn").onclick = shareLink;
+  document.getElementById("af-connect-btn").onclick = doAddFriend;
+  document.getElementById("send-btn").onclick = sendMessage;
+  document.getElementById("chat-input").addEventListener("keydown", e => {
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+  });
+  document.getElementById("chat-input").addEventListener("input", function() {
+    this.style.height = "auto";
+    this.style.height = Math.min(this.scrollHeight, 120) + "px";
+  });
+}
+
+function renderContactList() {
+  const wrap = document.getElementById("contact-list-wrap");
+  const empty = document.getElementById("empty-home");
+
+  if (S.contacts.length === 0) {
+    wrap.style.display = "none";
+    empty.style.display = "flex";
+    return;
+  }
+
+  wrap.style.display = "block";
+  empty.style.display = "none";
+
+  wrap.innerHTML = S.contacts.map(c => {
+    const msgs = loadMessages(c.id);
+    const last = msgs[msgs.length - 1];
+    const isOnline = !!S.conns[c.id]?.open;
+    const unread = S.unread[c.id] || 0;
+    return `
+      <div class="contact-item ${S.currentPeer === c.id ? 'active' : ''}" data-id="${c.id}">
+        <div class="avatar" style="background:${c.color};">
+          ${initials(c.name)}
+          <span class="avatar-badge ${isOnline ? 'online' : ''}"></span>
+        </div>
+        <div class="contact-info">
+          <div class="contact-name">${escHtml(c.name)}</div>
+          <div class="contact-preview">${last ? escHtml(last.text.slice(0, 60)) : '<span style="font-style:italic;color:#444">No messages yet</span>'}</div>
+        </div>
+        <div class="contact-meta">
+          ${last ? `<div class="contact-time">${fmt(last.ts)}</div>` : ''}
+          ${unread ? `<div class="unread-badge">${unread}</div>` : ''}
+        </div>
+      </div>`;
+  }).join("");
+
+  wrap.querySelectorAll(".contact-item").forEach(el => {
+    el.addEventListener("click", () => openChat(el.dataset.id));
+  });
+}
+
+function updateContactStatus(peerId, online) {
+  if (S.currentPeer === peerId) {
+    const status = document.getElementById("chat-peer-status");
+    const banner = document.getElementById("connecting-banner");
+    status.textContent = online ? "Online" : "Offline";
+    status.className = "chat-header-status" + (online ? " online" : "");
+    banner.classList.toggle("visible", !online);
+  }
+  renderContactList();
+}
+
+// ─── Chat Screen ──────────────────────────────────────────────────────────────
+function openChat(peerId) {
+  S.currentPeer = peerId;
+  const contact = S.contacts.find(c => c.id === peerId);
+  if (!contact) return;
+
+  // Clear unread
+  S.unread[peerId] = 0;
+  lsSet("nxp_unread", S.unread);
+  renderContactList();
+
+  // Header
+  const av = document.getElementById("chat-avatar");
+  av.style.background = contact.color;
+  av.textContent = initials(contact.name);
+  document.getElementById("chat-peer-name").textContent = contact.name;
+
+  const isOnline = !!S.conns[peerId]?.open;
+  const status = document.getElementById("chat-peer-status");
+  status.textContent = isOnline ? "Online" : "Connecting…";
+  status.className = "chat-header-status" + (isOnline ? " online" : "");
+  document.getElementById("connecting-banner").classList.toggle("visible", !isOnline);
+
+  renderMessages(peerId);
+  showScreen("chat");
+  document.getElementById("chat-input").focus();
+
+  // Try to connect if not already
+  if (!isOnline) connectToPeer(peerId);
+}
+
+function renderMessages(peerId) {
+  const msgs = loadMessages(peerId);
+  const container = document.getElementById("messages");
+  container.innerHTML = "";
+
+  let lastDay = null;
+  msgs.forEach(msg => {
+    const day = new Date(msg.ts).toDateString();
+    if (day !== lastDay) {
+      const label = document.createElement("div");
+      label.className = "day-label";
+      label.textContent = new Date(msg.ts).toLocaleDateString([], { weekday: "long", month: "long", day: "numeric" });
+      container.appendChild(label);
+      lastDay = day;
+    }
+
+    const isMine = msg.from === S.myId;
+    const group = document.createElement("div");
+    group.className = `msg-group ${isMine ? "mine" : "theirs"}`;
+
+    const bubble = document.createElement("div");
+    bubble.className = `msg ${isMine ? "mine" : "theirs"}`;
+    bubble.textContent = msg.text;
+
+    const meta = document.createElement("div");
+    meta.className = "msg-meta";
+    meta.textContent = fmt(msg.ts);
+
+    group.appendChild(bubble);
+    group.appendChild(meta);
+    container.appendChild(group);
+  });
+
+  container.scrollTop = container.scrollHeight;
+}
+
+function receiveMessage(peerId, data) {
+  const msg = { from: peerId, text: data.text, ts: data.ts };
+  saveMessage(peerId, msg);
+
+  if (S.currentPeer === peerId && document.getElementById("chat").classList.contains("active")) {
+    renderMessages(peerId);
+  } else {
+    S.unread[peerId] = (S.unread[peerId] || 0) + 1;
+    lsSet("nxp_unread", S.unread);
+    renderContactList();
+    // Flash document title
+    document.title = `(${Object.values(S.unread).reduce((a, b) => a + b, 0)}) Nexus P2P`;
+  }
+}
+
+function sendMessage() {
+  const inp = document.getElementById("chat-input");
+  const text = inp.value.trim();
+  if (!text || !S.currentPeer) return;
+
+  const msg = { type: "msg", text, ts: Date.now() };
+  saveMessage(S.currentPeer, { from: S.myId, text, ts: msg.ts });
+  renderMessages(S.currentPeer);
+  inp.value = "";
+  inp.style.height = "auto";
+
+  const conn = S.conns[S.currentPeer];
+  if (conn?.open) {
+    conn.send(msg);
+  } else {
+    queueMessage(S.currentPeer, msg);
+    connectToPeer(S.currentPeer);
+    toast("Queued — will send when they come online");
+  }
+}
+
+// ─── My ID Modal ──────────────────────────────────────────────────────────────
+function openMyIdModal() {
+  document.getElementById("my-peer-id-display").textContent = S.myId;
+  document.getElementById("my-id-overlay").classList.add("active");
+  QRCode.toCanvas(document.getElementById("qr-canvas"), S.myId, {
+    width: 200, margin: 2,
+    color: { dark: "#ffffff", light: "#1e1e28" }
+  });
+}
+function closeMyIdModal() { document.getElementById("my-id-overlay").classList.remove("active"); }
+document.getElementById("my-id-overlay").addEventListener("click", e => { if (e.target === e.currentTarget) closeMyIdModal(); });
+
+function copyId() {
+  navigator.clipboard.writeText(S.myId).then(() => {
+    const btn = document.getElementById("copy-id-btn");
+    btn.textContent = "Copied!";
+    setTimeout(() => btn.textContent = "Copy", 2000);
+  });
+}
+
+function shareLink() {
+  const url = `${location.href.split("?")[0]}?connect=${S.myId}&name=${encodeURIComponent(S.myName)}`;
+  if (navigator.share) {
+    navigator.share({ title: "Chat with me on Nexus", url });
+  } else {
+    navigator.clipboard.writeText(url).then(() => toast("Link copied to clipboard!"));
+  }
+}
+
+// ─── Add Friend Modal ─────────────────────────────────────────────────────────
+function openAddFriendModal() { document.getElementById("add-friend-overlay").classList.add("active"); }
+function closeAddFriendModal() {
+  document.getElementById("add-friend-overlay").classList.remove("active");
+  document.getElementById("af-peer-id").value = "";
+  document.getElementById("af-name").value = "";
+}
+document.getElementById("add-friend-overlay").addEventListener("click", e => { if (e.target === e.currentTarget) closeAddFriendModal(); });
+
+function doAddFriend() {
+  const id = document.getElementById("af-peer-id").value.trim();
+  const name = document.getElementById("af-name").value.trim() || "Friend";
+  if (!id) { document.getElementById("af-peer-id").focus(); return; }
+  if (addContact(id, name)) {
+    closeAddFriendModal();
+    renderContactList();
+    openChat(id);
+  }
+}
+
+// ─── Utils ────────────────────────────────────────────────────────────────────
+function escHtml(s) {
+  return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
+// ─── Boot ─────────────────────────────────────────────────────────────────────
+(function boot() {
+  const name = ls("nxp_name", null);
+  const params = new URLSearchParams(window.location.search);
+  const autoConnectId = params.get("connect");
+  const autoConnectName = params.get("name");
+
+  if (name) {
+    S.myName = name;
+    initPeer(autoConnectId, autoConnectName);
+  } else {
+    showScreen("setup");
+    initSetup();
+    if (autoConnectId) {
+      // Pre-fill the setup screen to let them know why they're here
+      const p = document.querySelector("#setup .setup-card p");
+      if (p) p.textContent = `${autoConnectName || "Someone"} wants to chat with you on Nexus. Enter your name to connect.`;
+    }
+  }
+})();
+</script>
+</body>
+</html>
