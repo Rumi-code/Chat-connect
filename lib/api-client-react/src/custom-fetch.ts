@@ -2,6 +2,33 @@ export type CustomFetchOptions = RequestInit & {
   responseType?: "json" | "text" | "blob" | "auto";
 };
 
+/**
+ * Returns the API base URL for local-network / standalone (file://) mode.
+ * In normal hosted mode this returns "" so relative /api paths work as-is.
+ * In standalone / file:// mode the user sets a server URL like http://192.168.1.5:8080
+ * and all /api/* calls are prefixed with it automatically.
+ */
+function getApiBaseUrl(): string {
+  if (typeof window === "undefined") return "";
+  if (window.location.protocol === "file:") {
+    return localStorage.getItem("nexus-server-url") ?? "";
+  }
+  return "";
+}
+
+function resolveApiUrl(input: RequestInfo | URL): RequestInfo | URL {
+  const base = getApiBaseUrl();
+  if (!base) return input;
+  const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : (input as Request).url;
+  if (url.startsWith("/api/") || url.startsWith("/api")) {
+    const resolved = base.replace(/\/$/, "") + url;
+    if (typeof input === "string") return resolved;
+    if (input instanceof URL) return new URL(resolved);
+    return new Request(resolved, input as Request);
+  }
+  return input;
+}
+
 export type ErrorType<T = unknown> = ApiError<T>;
 
 export type BodyType<T> = T;
@@ -299,7 +326,7 @@ export async function customFetch<T = unknown>(
 
   const requestInfo = { method, url: resolveUrl(input) };
 
-  const response = await fetch(input, { ...init, method, headers });
+  const response = await fetch(resolveApiUrl(input), { ...init, method, headers });
 
   if (!response.ok) {
     const errorData = await parseErrorBody(response, method);

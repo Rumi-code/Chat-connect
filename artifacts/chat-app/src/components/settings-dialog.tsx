@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Settings, Palette, Image as ImageIcon, Check, MessageSquare, Type, Bell } from "lucide-react";
+import { Settings, Palette, Image as ImageIcon, Check, MessageSquare, Bell, Wifi } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -80,12 +80,21 @@ export function SettingsDialog() {
     timestampMode, setTimestampMode,
     soundEnabled, setSoundEnabled,
     compactMode, setCompactMode,
+    serverUrl, setServerUrl,
   } = useSettings();
   const { user } = useAuth();
   const { data: convos = [] } = useListConversations({ userId: user?.id ?? 0 });
   const [selectedConvoId, setSelectedConvoId] = useState<number | null>(null);
+  const [urlInput, setUrlInput] = useState(serverUrl);
+  const [urlSaved, setUrlSaved] = useState(false);
 
   const getOtherUser = (members: any[]) => members.find((m: any) => m.id !== user?.id) || members[0];
+
+  const handleSaveUrl = () => {
+    setServerUrl(urlInput);
+    setUrlSaved(true);
+    setTimeout(() => setUrlSaved(false), 2000);
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -102,18 +111,21 @@ export function SettingsDialog() {
         </DialogHeader>
 
         <Tabs defaultValue="appearance" className="flex flex-col flex-1 overflow-hidden">
-          <TabsList className="mx-6 mt-4 grid grid-cols-4 bg-white/5 border border-white/10 rounded-2xl p-1 shrink-0">
-            <TabsTrigger value="appearance" className="rounded-xl text-xs data-[state=active]:bg-primary/20 data-[state=active]:text-primary px-2">
+          <TabsList className="mx-6 mt-4 grid grid-cols-5 bg-white/5 border border-white/10 rounded-2xl p-1 shrink-0">
+            <TabsTrigger value="appearance" className="rounded-xl text-xs data-[state=active]:bg-primary/20 data-[state=active]:text-primary px-1.5">
               <Palette className="w-3.5 h-3.5 mr-1" /> Look
             </TabsTrigger>
-            <TabsTrigger value="messages" className="rounded-xl text-xs data-[state=active]:bg-primary/20 data-[state=active]:text-primary px-2">
+            <TabsTrigger value="messages" className="rounded-xl text-xs data-[state=active]:bg-primary/20 data-[state=active]:text-primary px-1.5">
               <MessageSquare className="w-3.5 h-3.5 mr-1" /> Chat
             </TabsTrigger>
-            <TabsTrigger value="notifications" className="rounded-xl text-xs data-[state=active]:bg-primary/20 data-[state=active]:text-primary px-2">
+            <TabsTrigger value="notifications" className="rounded-xl text-xs data-[state=active]:bg-primary/20 data-[state=active]:text-primary px-1.5">
               <Bell className="w-3.5 h-3.5 mr-1" /> Alerts
             </TabsTrigger>
-            <TabsTrigger value="backgrounds" className="rounded-xl text-xs data-[state=active]:bg-primary/20 data-[state=active]:text-primary px-2">
+            <TabsTrigger value="backgrounds" className="rounded-xl text-xs data-[state=active]:bg-primary/20 data-[state=active]:text-primary px-1.5">
               <ImageIcon className="w-3.5 h-3.5 mr-1" /> Walls
+            </TabsTrigger>
+            <TabsTrigger value="network" className="rounded-xl text-xs data-[state=active]:bg-primary/20 data-[state=active]:text-primary px-1.5">
+              <Wifi className="w-3.5 h-3.5 mr-1" /> LAN
             </TabsTrigger>
           </TabsList>
 
@@ -135,8 +147,11 @@ export function SettingsDialog() {
                           : "border-white/10 hover:border-white/30 hover:bg-white/5"
                       )}
                     >
-                      <div className={cn("w-8 h-8 rounded-xl border-2 border-white/20 flex items-center justify-center", theme.preview)}>
-                        {themeId === theme.id && <Check className="w-4 h-4 text-white" />}
+                      <div
+                        className="w-10 h-10 rounded-xl border-2 border-white/20 flex items-center justify-center"
+                        style={{ backgroundColor: theme.preview }}
+                      >
+                        {themeId === theme.id && <Check className="w-4 h-4 text-white drop-shadow" />}
                       </div>
                       <span className="text-xs font-medium">{theme.name}</span>
                     </button>
@@ -306,6 +321,65 @@ export function SettingsDialog() {
                   )}
                 </div>
               )}
+            </TabsContent>
+
+            {/* NETWORK / LAN TAB */}
+            <TabsContent value="network" className="p-6 space-y-4 mt-0">
+              <div className="p-4 rounded-2xl bg-primary/10 border border-primary/20">
+                <div className="flex items-start gap-3">
+                  <Wifi className="w-5 h-5 text-primary mt-0.5 shrink-0" />
+                  <div>
+                    <p className="text-sm font-semibold text-primary">Local Network Mode</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Use this when running Nexus on your own device. People on the same Wi-Fi can open the app and connect to your server using your device's local IP address (e.g. <code className="bg-white/10 px-1 rounded">http://192.168.1.5:8080</code>).
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <p className="text-xs uppercase tracking-wider font-semibold text-muted-foreground">Server URL</p>
+                <p className="text-xs text-muted-foreground">
+                  Leave blank to use the default (current site). Set this to your device's LAN IP when using the standalone file.
+                </p>
+                <div className="flex gap-2">
+                  <input
+                    type="url"
+                    value={urlInput}
+                    onChange={e => setUrlInput(e.target.value)}
+                    placeholder="http://192.168.x.x:8080"
+                    className="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-primary/50 transition-colors"
+                  />
+                  <Button
+                    size="sm"
+                    onClick={handleSaveUrl}
+                    className="rounded-xl shrink-0"
+                  >
+                    {urlSaved ? <><Check className="w-3.5 h-3.5 mr-1" /> Saved</> : "Save"}
+                  </Button>
+                </div>
+                {serverUrl && (
+                  <div className="flex items-center gap-2 mt-1">
+                    <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+                    <p className="text-xs text-green-400">Connected to {serverUrl}</p>
+                    <button
+                      onClick={() => { setUrlInput(""); setServerUrl(""); }}
+                      className="ml-auto text-xs text-muted-foreground hover:text-red-400 transition-colors"
+                    >
+                      Clear
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              <div className="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-2">
+                <p className="text-sm font-medium">How to find your local IP</p>
+                <ul className="text-xs text-muted-foreground space-y-1 list-disc list-inside">
+                  <li><span className="font-medium text-foreground">Windows:</span> Run <code className="bg-white/10 px-1 rounded">ipconfig</code> → IPv4 Address</li>
+                  <li><span className="font-medium text-foreground">Mac/Linux:</span> Run <code className="bg-white/10 px-1 rounded">ifconfig</code> → inet address</li>
+                  <li><span className="font-medium text-foreground">Android/iPhone:</span> Settings → Wi-Fi → tap network → IP address</li>
+                </ul>
+              </div>
             </TabsContent>
 
           </div>
