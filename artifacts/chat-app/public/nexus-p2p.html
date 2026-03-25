@@ -9,26 +9,21 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg: #0f0f13;
-      --bg2: #16161d;
-      --bg3: #1e1e28;
+      --bg: #0f0f13; --bg2: #16161d; --bg3: #1e1e28;
       --border: rgba(255,255,255,0.08);
-      --primary: #7c3aed;
-      --primary-light: #8b5cf6;
-      --text: #f0f0f5;
-      --muted: #6b6b80;
-      --online: #22c55e;
+      --primary: #7c3aed; --primary-light: #8b5cf6;
+      --text: #f0f0f5; --muted: #6b6b80;
+      --online: #22c55e; --owner: #f59e0b;
+      --danger: #ef4444;
     }
-    html, body { height: 100%; background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 15px; }
-
-    /* Layout */
+    html, body { height: 100%; background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 15px; overflow: hidden; }
     .screen { display: none; height: 100vh; flex-direction: column; }
     .screen.active { display: flex; }
 
-    /* Setup screen */
+    /* ── Setup ── */
     #setup { align-items: center; justify-content: center; padding: 24px; }
     .setup-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 24px; padding: 40px 32px; width: 100%; max-width: 380px; text-align: center; }
-    .logo { width: 64px; height: 64px; background: linear-gradient(135deg, #7c3aed, #6d28d9); border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 900; color: white; margin: 0 auto 20px; letter-spacing: -2px; }
+    .logo { width: 64px; height: 64px; background: linear-gradient(135deg, #7c3aed, #6d28d9); border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 900; color: white; margin: 0 auto 20px; }
     .setup-card h1 { font-size: 24px; font-weight: 700; margin-bottom: 6px; }
     .setup-card p { color: var(--muted); font-size: 14px; margin-bottom: 28px; line-height: 1.5; }
     .field { text-align: left; margin-bottom: 16px; }
@@ -38,27 +33,30 @@
     .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 13px 24px; border-radius: 14px; font-size: 15px; font-weight: 600; cursor: pointer; border: none; transition: all 0.15s; width: 100%; }
     .btn-primary { background: var(--primary); color: white; }
     .btn-primary:hover { background: var(--primary-light); }
-    .btn-secondary { background: var(--bg3); color: var(--text); border: 1px solid var(--border); }
+    .btn-secondary { background: var(--bg3); color: var(--text); border: 1px solid var(--border); margin-top: 8px; }
     .btn-secondary:hover { background: rgba(255,255,255,0.08); }
-    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-danger { background: var(--danger); color: white; margin-top: 8px; }
+    .btn-owner { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; }
+    .btn-owner:hover { opacity: 0.9; }
 
-    /* Home screen */
-    #home { }
-    .home-header { display: flex; align-items: center; gap: 12px; padding: 16px 16px 12px; background: var(--bg2); border-bottom: 1px solid var(--border); }
-    .my-avatar { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 15px; color: white; flex-shrink: 0; }
-    .my-name { font-weight: 600; font-size: 15px; flex: 1; }
-    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--online); }
-    .icon-btn { background: none; border: none; color: var(--muted); cursor: pointer; padding: 6px; border-radius: 10px; transition: all 0.15s; display: flex; align-items: center; }
+    /* ── Home ── */
+    .home-header { display: flex; align-items: center; gap: 10px; padding: 14px 16px 10px; background: var(--bg2); border-bottom: 1px solid var(--border); min-height: 60px; }
+    .my-avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; color: white; flex-shrink: 0; }
+    .my-name { font-weight: 600; font-size: 14px; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--online); flex-shrink: 0; }
+    .icon-btn { background: none; border: none; color: var(--muted); cursor: pointer; padding: 6px; border-radius: 10px; transition: all 0.15s; display: flex; align-items: center; flex-shrink: 0; }
     .icon-btn:hover { background: rgba(255,255,255,0.08); color: var(--text); }
+    .owner-badge-home { background: var(--owner); color: #1a0a00; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 99px; flex-shrink: 0; }
     .contact-list { flex: 1; overflow-y: auto; }
-    .contact-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; cursor: pointer; border-bottom: 1px solid var(--border); transition: background 0.1s; position: relative; }
+    .contact-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; cursor: pointer; border-bottom: 1px solid var(--border); transition: background 0.1s; }
     .contact-item:hover { background: rgba(255,255,255,0.04); }
-    .contact-item.active { background: rgba(124,58,237,0.1); }
-    .avatar { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 17px; color: white; flex-shrink: 0; position: relative; }
-    .avatar-badge { position: absolute; bottom: 0; right: 0; width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--bg); background: var(--muted); }
+    .avatar { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 16px; color: white; flex-shrink: 0; position: relative; }
+    .avatar-badge { position: absolute; bottom: 0; right: 0; width: 13px; height: 13px; border-radius: 50%; border: 2px solid var(--bg); background: var(--muted); }
     .avatar-badge.online { background: var(--online); }
     .contact-info { flex: 1; min-width: 0; }
+    .contact-name-row { display: flex; align-items: center; gap: 5px; }
     .contact-name { font-weight: 600; font-size: 14px; }
+    .crown { font-size: 13px; }
     .contact-preview { font-size: 13px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
     .contact-meta { text-align: right; flex-shrink: 0; }
     .contact-time { font-size: 11px; color: var(--muted); }
@@ -67,61 +65,107 @@
     .empty-state svg { opacity: 0.3; }
     .empty-state p { font-size: 14px; line-height: 1.6; }
     .fab { position: fixed; bottom: 24px; right: 24px; width: 56px; height: 56px; border-radius: 50%; background: var(--primary); color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 24px rgba(124,58,237,0.5); transition: all 0.2s; font-size: 24px; }
-    .fab:hover { transform: scale(1.08); background: var(--primary-light); }
+    .fab:hover { transform: scale(1.08); }
 
-    /* My ID screen (modal) */
+    /* ── Modals ── */
     .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 100; align-items: flex-end; justify-content: center; }
     .modal-overlay.active { display: flex; }
-    .modal { background: var(--bg2); border-radius: 24px 24px 0 0; width: 100%; max-width: 480px; padding: 24px; }
+    .modal { background: var(--bg2); border-radius: 24px 24px 0 0; width: 100%; max-width: 480px; padding: 24px; max-height: 90vh; overflow-y: auto; }
     .modal-handle { width: 36px; height: 4px; background: var(--border); border-radius: 99px; margin: 0 auto 20px; }
     .modal h2 { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
     .modal p { font-size: 13px; color: var(--muted); margin-bottom: 20px; line-height: 1.5; }
     .qr-wrap { display: flex; justify-content: center; margin-bottom: 20px; }
     .qr-wrap canvas { border-radius: 12px; }
     .peer-id-box { background: var(--bg3); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
-    .peer-id-text { flex: 1; font-family: monospace; font-size: 13px; color: var(--primary-light); word-break: break-all; }
-    .copy-btn { background: var(--primary); color: white; border: none; border-radius: 10px; padding: 7px 12px; font-size: 12px; font-weight: 600; cursor: pointer; flex-shrink: 0; transition: all 0.15s; }
-    .copy-btn:hover { background: var(--primary-light); }
-
-    /* Add friend screen */
-    #add-friend-modal { }
+    .peer-id-text { flex: 1; font-family: monospace; font-size: 12px; color: var(--primary-light); word-break: break-all; }
+    .copy-btn { background: var(--primary); color: white; border: none; border-radius: 10px; padding: 7px 12px; font-size: 12px; font-weight: 600; cursor: pointer; flex-shrink: 0; }
     .af-form { display: flex; flex-direction: column; gap: 12px; }
 
-    /* Chat screen */
-    #chat { }
-    .chat-header { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: var(--bg2); border-bottom: 1px solid var(--border); }
-    .back-btn { background: none; border: none; color: var(--muted); cursor: pointer; padding: 4px; border-radius: 8px; display: flex; align-items: center; }
+    /* ── Chat ── */
+    .chat-header { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: var(--bg2); border-bottom: 1px solid var(--border); min-height: 56px; }
+    .back-btn { background: none; border: none; color: var(--muted); cursor: pointer; padding: 4px; border-radius: 8px; display: flex; }
     .back-btn:hover { color: var(--text); }
-    .chat-header-info { flex: 1; }
-    .chat-header-name { font-weight: 600; font-size: 15px; }
+    .chat-header-info { flex: 1; min-width: 0; }
+    .chat-header-name { font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 5px; }
     .chat-header-status { font-size: 12px; color: var(--muted); }
     .chat-header-status.online { color: var(--online); }
-    .messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 6px; }
-    .msg { max-width: 80%; padding: 10px 14px; border-radius: 18px; font-size: 14px; line-height: 1.5; word-break: break-word; }
-    .msg.mine { align-self: flex-end; background: var(--primary); color: white; border-bottom-right-radius: 5px; }
-    .msg.theirs { align-self: flex-start; background: var(--bg3); color: var(--text); border-bottom-left-radius: 5px; }
-    .msg-meta { font-size: 10px; opacity: 0.6; margin-top: 3px; text-align: right; }
-    .msg-pending { font-size: 10px; opacity: 0.5; margin-top: 3px; text-align: right; }
-    .msg-group { display: flex; flex-direction: column; }
+    .pinned-banner { background: rgba(245,158,11,0.12); border-bottom: 1px solid rgba(245,158,11,0.25); padding: 7px 14px; font-size: 12px; color: var(--owner); display: none; align-items: center; gap: 8px; cursor: pointer; }
+    .pinned-banner.visible { display: flex; }
+    .pinned-text { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .connecting-banner { background: rgba(124,58,237,0.12); border-bottom: 1px solid rgba(124,58,237,0.25); padding: 7px 16px; font-size: 12px; color: var(--primary-light); text-align: center; display: none; }
+    .connecting-banner.visible { display: block; }
+    .messages { flex: 1; overflow-y: auto; padding: 12px 14px; display: flex; flex-direction: column; gap: 2px; }
+    .day-label { text-align: center; font-size: 11px; color: var(--muted); padding: 8px 0 4px; }
+    .msg-group { display: flex; flex-direction: column; margin-bottom: 4px; }
     .msg-group.mine { align-items: flex-end; }
     .msg-group.theirs { align-items: flex-start; }
-    .chat-input-area { padding: 12px 16px; background: var(--bg2); border-top: 1px solid var(--border); display: flex; align-items: flex-end; gap: 10px; }
+    .msg-bubble-wrap { position: relative; max-width: 82%; }
+    .msg { padding: 9px 13px; border-radius: 18px; font-size: 14px; line-height: 1.5; word-break: break-word; cursor: pointer; user-select: none; }
+    .msg.mine { background: var(--primary); color: white; border-bottom-right-radius: 4px; }
+    .msg.theirs { background: var(--bg3); color: var(--text); border-bottom-left-radius: 4px; }
+    .msg.deleted { opacity: 0.4; font-style: italic; cursor: default; }
+    .msg.owner-broadcast { background: linear-gradient(135deg, rgba(245,158,11,0.25), rgba(245,158,11,0.1)); border: 1px solid rgba(245,158,11,0.4); color: var(--text); border-radius: 12px; }
+    .msg-img { max-width: 100%; border-radius: 12px; display: block; cursor: zoom-in; }
+    .msg-file { display: flex; align-items: center; gap: 8px; padding: 4px 0; }
+    .msg-file-icon { font-size: 22px; }
+    .msg-file-name { font-size: 13px; opacity: 0.85; }
+    .msg-meta { font-size: 10px; margin-top: 3px; display: flex; align-items: center; gap: 4px; }
+    .msg-group.mine .msg-meta { justify-content: flex-end; opacity: 0.65; }
+    .msg-group.theirs .msg-meta { justify-content: flex-start; opacity: 0.55; }
+    .tick { font-size: 11px; }
+    .tick.read { color: #60a5fa; }
+    .reactions-row { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+    .reaction-chip { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); border-radius: 99px; padding: 2px 8px; font-size: 13px; cursor: pointer; transition: all 0.1s; display: inline-flex; align-items: center; gap: 3px; }
+    .reaction-chip:hover { background: rgba(255,255,255,0.14); }
+    .reaction-chip.mine { background: rgba(124,58,237,0.25); border-color: rgba(124,58,237,0.4); }
+    .reaction-count { font-size: 11px; color: var(--muted); }
+    .typing-indicator { display: none; align-items: center; gap: 8px; padding: 6px 14px 0; color: var(--muted); font-size: 12px; font-style: italic; min-height: 24px; }
+    .typing-indicator.visible { display: flex; }
+    .dots span { display: inline-block; width: 4px; height: 4px; border-radius: 50%; background: var(--muted); margin: 0 1px; animation: bounce 1.2s infinite; }
+    .dots span:nth-child(2) { animation-delay: 0.2s; }
+    .dots span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-4px)} }
+    .chat-input-area { padding: 10px 12px; background: var(--bg2); border-top: 1px solid var(--border); display: flex; align-items: flex-end; gap: 8px; }
+    .attach-btn { background: none; border: none; color: var(--muted); cursor: pointer; padding: 8px; border-radius: 50%; display: flex; transition: color 0.15s; flex-shrink: 0; }
+    .attach-btn:hover { color: var(--text); }
     .chat-input { flex: 1; background: var(--bg3); border: 1px solid var(--border); border-radius: 22px; padding: 10px 16px; font-size: 14px; color: var(--text); outline: none; resize: none; max-height: 120px; line-height: 1.5; font-family: inherit; }
     .chat-input:focus { border-color: var(--primary); }
-    .send-btn { width: 42px; height: 42px; border-radius: 50%; background: var(--primary); color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.15s; }
+    .send-btn { width: 40px; height: 40px; border-radius: 50%; background: var(--primary); color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.15s; }
     .send-btn:hover { background: var(--primary-light); }
-    .send-btn:disabled { opacity: 0.3; cursor: not-allowed; }
-    .day-label { text-align: center; font-size: 11px; color: var(--muted); padding: 8px 0; }
 
-    /* Connecting banner */
-    .connecting-banner { background: rgba(124,58,237,0.15); border-bottom: 1px solid rgba(124,58,237,0.3); padding: 8px 16px; font-size: 12px; color: var(--primary-light); text-align: center; display: none; }
-    .connecting-banner.visible { display: block; }
+    /* ── Reaction Picker ── */
+    .reaction-picker { display: none; position: fixed; background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; padding: 8px 10px; box-shadow: 0 8px 32px rgba(0,0,0,0.6); z-index: 300; flex-wrap: wrap; gap: 4px; max-width: 220px; }
+    .reaction-picker.visible { display: flex; }
+    .rp-emoji { font-size: 22px; cursor: pointer; padding: 4px 6px; border-radius: 8px; transition: background 0.1s; }
+    .rp-emoji:hover { background: rgba(255,255,255,0.1); }
+    .rp-action { font-size: 12px; cursor: pointer; padding: 5px 9px; border-radius: 8px; border: 1px solid var(--border); color: var(--muted); display: flex; align-items: center; gap: 4px; white-space: nowrap; transition: all 0.1s; }
+    .rp-action:hover { background: rgba(255,255,255,0.08); color: var(--text); }
+    .rp-action.danger:hover { border-color: var(--danger); color: var(--danger); }
+    .rp-sep { width: 100%; height: 1px; background: var(--border); margin: 2px 0; }
 
-    /* Toast */
-    .toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: var(--bg3); border: 1px solid var(--border); border-radius: 12px; padding: 10px 18px; font-size: 13px; z-index: 200; opacity: 0; transition: opacity 0.2s; pointer-events: none; white-space: nowrap; }
+    /* ── Owner Panel ── */
+    #owner-panel-overlay .modal { border-top: 3px solid var(--owner); }
+    .owner-title { display: flex; align-items: center; gap: 8px; color: var(--owner); font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 12px 0; }
+    .stat-box { background: var(--bg3); border: 1px solid var(--border); border-radius: 12px; padding: 12px; text-align: center; }
+    .stat-num { font-size: 22px; font-weight: 700; color: var(--primary-light); }
+    .stat-label { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .peer-list { display: flex; flex-direction: column; gap: 6px; max-height: 180px; overflow-y: auto; margin: 8px 0; }
+    .peer-row { display: flex; align-items: center; gap: 10px; padding: 8px 10px; background: var(--bg3); border-radius: 10px; font-size: 13px; }
+    .peer-row-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .peer-row-name { flex: 1; font-weight: 500; }
+    .peer-row-id { font-family: monospace; font-size: 10px; color: var(--muted); }
+    .broadcast-area { background: var(--bg3); border: 1px solid var(--border); border-radius: 14px; padding: 12px 14px; font-size: 14px; color: var(--text); outline: none; resize: none; width: 100%; font-family: inherit; line-height: 1.5; min-height: 80px; margin-bottom: 10px; }
+    .broadcast-area:focus { border-color: var(--owner); }
+
+    /* ── Image viewer ── */
+    #img-viewer { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 400; align-items: center; justify-content: center; cursor: zoom-out; }
+    #img-viewer.active { display: flex; }
+    #img-viewer img { max-width: 95vw; max-height: 90vh; border-radius: 8px; }
+
+    /* ── Toast ── */
+    .toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: var(--bg3); border: 1px solid var(--border); border-radius: 12px; padding: 10px 18px; font-size: 13px; z-index: 500; opacity: 0; transition: opacity 0.2s; pointer-events: none; white-space: nowrap; }
     .toast.show { opacity: 1; }
-
-    /* Scrollbar */
     ::-webkit-scrollbar { width: 4px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
@@ -129,39 +173,78 @@
 </head>
 <body>
 
-<!-- SETUP SCREEN -->
+<!-- SETUP -->
 <div id="setup" class="screen">
   <div class="setup-card">
     <div class="logo">N</div>
     <h1>Nexus P2P</h1>
-    <p>Direct messaging over any network.<br>No servers. No accounts. Just you and your contacts.</p>
+    <p id="setup-desc">Direct messaging over any network.<br>No servers. No accounts. Just you and your contacts.</p>
     <div class="field">
       <label>Your display name</label>
       <input id="setup-name" type="text" placeholder="e.g. Alex" maxlength="32" autocomplete="off" />
     </div>
-    <button class="btn btn-primary" id="setup-btn">Get Started</button>
+    <button class="btn btn-primary" id="setup-btn">Get Started →</button>
   </div>
 </div>
 
-<!-- HOME SCREEN -->
+<!-- HOME -->
 <div id="home" class="screen">
   <div class="home-header">
     <div class="my-avatar" id="my-avatar"></div>
     <span class="my-name" id="my-name-label"></span>
     <div class="status-dot"></div>
+    <span class="owner-badge-home" id="owner-badge-home" style="display:none">OWNER</span>
+    <!-- Owner broadcast button -->
+    <button class="icon-btn" id="broadcast-btn" title="Broadcast to all (Owner)" style="display:none;color:var(--owner)">
+      <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M22 3L9.218 10.083M11.698 20.334L7.5 8.5M7.5 8.5l-4.5 2.5m4.5-2.5L22 3M22 3l-1 10"/></svg>
+    </button>
+    <!-- Owner panel button -->
+    <button class="icon-btn" id="owner-panel-btn" title="Owner Panel" style="display:none;color:var(--owner)">
+      <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+    </button>
     <button class="icon-btn" id="show-my-id-btn" title="My ID / QR Code">
       <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM17 17h3M17 14v3"/></svg>
     </button>
   </div>
-
-  <div id="contact-list-wrap" class="contact-list" style="display:none;overflow-y:auto;flex:1;"></div>
-
+  <div id="contact-list-wrap" class="contact-list" style="display:none;flex:1;overflow-y:auto;"></div>
   <div id="empty-home" class="empty-state">
     <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
     <p>No contacts yet.<br>Tap <strong>+</strong> to add someone or share your ID so they can find you.</p>
   </div>
-
   <button class="fab" id="add-friend-btn">+</button>
+</div>
+
+<!-- CHAT -->
+<div id="chat" class="screen">
+  <div class="chat-header">
+    <button class="back-btn" id="back-btn">
+      <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div class="avatar" id="chat-avatar" style="width:36px;height:36px;font-size:14px;"></div>
+    <div class="chat-header-info" style="margin-left:6px;">
+      <div class="chat-header-name" id="chat-peer-name"></div>
+      <div class="chat-header-status" id="chat-peer-status">Connecting…</div>
+    </div>
+  </div>
+  <div class="pinned-banner" id="pinned-banner">
+    <span style="font-size:14px">📌</span>
+    <span class="pinned-text" id="pinned-text"></span>
+  </div>
+  <div class="connecting-banner" id="connecting-banner">Reaching out… they need Nexus open too.</div>
+  <div class="messages" id="messages"></div>
+  <div class="typing-indicator" id="typing-indicator">
+    <div class="dots"><span></span><span></span><span></span></div>
+    <span id="typing-name"></span> is typing…
+  </div>
+  <div class="chat-input-area">
+    <button class="attach-btn" id="attach-btn" title="Send image or file">
+      <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+    </button>
+    <textarea class="chat-input" id="chat-input" placeholder="Message…" rows="1"></textarea>
+    <button class="send-btn" id="send-btn">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+    </button>
+  </div>
 </div>
 
 <!-- MY ID MODAL -->
@@ -169,15 +252,14 @@
   <div class="modal">
     <div class="modal-handle"></div>
     <h2>Your Nexus ID</h2>
-    <p>Share this with anyone you want to chat with. They can scan the QR or paste the code to connect directly to you — no Wi-Fi configuration needed.</p>
+    <p>Share this with anyone you want to chat with. They scan the QR or paste the code — no configuration needed.</p>
     <div class="qr-wrap"><canvas id="qr-canvas"></canvas></div>
     <div class="peer-id-box">
       <span class="peer-id-text" id="my-peer-id-display"></span>
       <button class="copy-btn" id="copy-id-btn">Copy</button>
     </div>
     <button class="btn btn-secondary" id="share-link-btn">Share as link…</button>
-    <br><br>
-    <button class="btn btn-secondary" onclick="closeMyIdModal()">Done</button>
+    <button class="btn btn-secondary" onclick="closeModal('my-id-overlay')">Done</button>
   </div>
 </div>
 
@@ -186,504 +268,556 @@
   <div class="modal">
     <div class="modal-handle"></div>
     <h2>Add a Contact</h2>
-    <p>Paste their Nexus ID below. Ask them to open Nexus and share their ID with you.</p>
+    <p>Paste their Nexus ID. Ask them to open Nexus and share theirs with you.</p>
     <div class="af-form">
-      <div class="field" style="margin:0">
-        <label>Their Nexus ID</label>
-        <input id="af-peer-id" type="text" placeholder="Paste their ID here…" autocomplete="off" />
-      </div>
-      <div class="field" style="margin:0">
-        <label>Their name (so you recognise them)</label>
-        <input id="af-name" type="text" placeholder="e.g. Jamie" maxlength="32" autocomplete="off" />
-      </div>
+      <div class="field" style="margin:0"><label>Their Nexus ID</label><input id="af-peer-id" type="text" placeholder="Paste their ID…" autocomplete="off" /></div>
+      <div class="field" style="margin:0"><label>Their name</label><input id="af-name" type="text" placeholder="e.g. Jamie" maxlength="32" autocomplete="off" /></div>
       <button class="btn btn-primary" id="af-connect-btn">Connect</button>
-      <button class="btn btn-secondary" onclick="closeAddFriendModal()">Cancel</button>
+      <button class="btn btn-secondary" onclick="closeModal('add-friend-overlay')">Cancel</button>
     </div>
   </div>
 </div>
 
-<!-- CHAT SCREEN -->
-<div id="chat" class="screen">
-  <div class="chat-header">
-    <button class="back-btn" id="back-btn">
-      <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
-    </button>
-    <div class="avatar" id="chat-avatar" style="width:36px;height:36px;font-size:14px;"></div>
-    <div class="chat-header-info" style="margin-left:8px;">
-      <div class="chat-header-name" id="chat-peer-name"></div>
-      <div class="chat-header-status" id="chat-peer-status">Connecting…</div>
-    </div>
-  </div>
-  <div class="connecting-banner" id="connecting-banner">Trying to reach this person… they need to have Nexus open too.</div>
-  <div class="messages" id="messages"></div>
-  <div class="chat-input-area">
-    <textarea class="chat-input" id="chat-input" placeholder="Message…" rows="1"></textarea>
-    <button class="send-btn" id="send-btn">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-    </button>
+<!-- BROADCAST MODAL (owner only) -->
+<div class="modal-overlay" id="broadcast-overlay">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="owner-title">📢 Broadcast Message</div>
+    <p>This will be sent to all your contacts simultaneously as an announcement.</p>
+    <textarea class="broadcast-area" id="broadcast-text" placeholder="Type your announcement…" maxlength="1000"></textarea>
+    <button class="btn btn-owner" id="do-broadcast-btn">Send to Everyone</button>
+    <button class="btn btn-secondary" onclick="closeModal('broadcast-overlay')">Cancel</button>
   </div>
 </div>
+
+<!-- OWNER PANEL MODAL -->
+<div class="modal-overlay" id="owner-panel-overlay">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="owner-title">⭐ Owner Panel</div>
+    <p>You have owner privileges. Your messages are shown with a crown to all contacts.</p>
+    <div class="stats-grid" id="stats-grid"></div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:8px;margin-top:4px;text-transform:uppercase;letter-spacing:.05em;font-weight:600">Connection Status</p>
+    <div class="peer-list" id="peer-list"></div>
+    <button class="btn btn-secondary" onclick="closeModal('owner-panel-overlay')">Close</button>
+  </div>
+</div>
+
+<!-- IMAGE VIEWER -->
+<div id="img-viewer" onclick="document.getElementById('img-viewer').classList.remove('active')">
+  <img id="img-viewer-img" src="" alt="" />
+</div>
+
+<!-- REACTION PICKER -->
+<div class="reaction-picker" id="reaction-picker"></div>
+
+<!-- HIDDEN FILE INPUT -->
+<input type="file" id="file-input" accept="image/*,application/pdf,.txt,.doc,.docx,.zip" style="display:none" />
 
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
 
 <script>
+// ─── Constants ────────────────────────────────────────────────────────────────
+const OWNER_SUFFIX = 'D1089';
+const EMOJIS = ['👍','❤️','😂','😮','😢','🔥','👏','🎉','💯','👀'];
+
 // ─── State ────────────────────────────────────────────────────────────────────
 const S = {
-  peer: null,
-  myId: null,
-  myName: null,
-  contacts: [],      // [{id, name, color}]
-  conns: {},         // peerId → DataConnection
-  unread: {},        // peerId → count
-  currentPeer: null,
+  peer: null, myId: null, myName: null,
+  contacts: [], conns: {}, unread: {},
+  currentPeer: null, pendingMsgId: null,
+  typingTimers: {}, typingActive: false, myTypingTimer: null,
+  pinnedMsgs: {}, // peerId → {id, text}
 };
 
+const isOwner = (id) => id && id.toUpperCase().endsWith(OWNER_SUFFIX.toUpperCase());
+
 // ─── Persistence ──────────────────────────────────────────────────────────────
-function ls(key, fallback) {
-  try { const v = localStorage.getItem(key); return v !== null ? JSON.parse(v) : fallback; } catch { return fallback; }
-}
-function lsSet(key, value) { localStorage.setItem(key, JSON.stringify(value)); }
-
-function loadMessages(peerId) { return ls(`nxp_msgs_${peerId}`, []); }
-function saveMessage(peerId, msg) {
-  const msgs = loadMessages(peerId);
-  msgs.push(msg);
-  if (msgs.length > 500) msgs.splice(0, msgs.length - 500);
-  lsSet(`nxp_msgs_${peerId}`, msgs);
+const ls = (k, fb) => { try { const v = localStorage.getItem(k); return v !== null ? JSON.parse(v) : fb; } catch { return fb; } };
+const lsSet = (k, v) => localStorage.setItem(k, JSON.stringify(v));
+const loadMsgs = (pid) => ls(`nxp_msgs_${pid}`, []);
+const saveMsgs = (pid, msgs) => lsSet(`nxp_msgs_${pid}`, msgs.slice(-600));
+function saveMsg(pid, msg) { const m = loadMsgs(pid); m.push(msg); saveMsgs(pid, m); }
+function updateMsg(pid, id, patch) {
+  const m = loadMsgs(pid);
+  const i = m.findIndex(x => x.id === id);
+  if (i >= 0) { Object.assign(m[i], patch); saveMsgs(pid, m); }
 }
 
-// ─── Avatar colors ────────────────────────────────────────────────────────────
-const COLORS = ["#7c3aed","#2563eb","#0891b2","#059669","#d97706","#dc2626","#db2777","#7c3aed"];
-function colorFor(id) { let h = 0; for (const c of id) h = (h * 31 + c.charCodeAt(0)) & 0xffff; return COLORS[h % COLORS.length]; }
-function initials(name) { return name.split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2); }
-
-// ─── Screens ──────────────────────────────────────────────────────────────────
-function showScreen(id) {
-  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
+// ─── Utils ────────────────────────────────────────────────────────────────────
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+function genId() { return `${Date.now()}_${Math.random().toString(36).slice(2,7)}`; }
+const COLORS = ['#7c3aed','#2563eb','#0891b2','#059669','#d97706','#dc2626','#db2777'];
+function colorFor(id) { let h=0; for (const c of String(id)) h=(h*31+c.charCodeAt(0))&0xffff; return COLORS[h%COLORS.length]; }
+function initials(name) { return String(name).split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2)||'?'; }
+function fmt(ts) {
+  const d=new Date(ts), now=new Date();
+  if (d.toDateString()===now.toDateString()) return d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  return d.toLocaleDateString([],{month:'short',day:'numeric'});
 }
 
 // ─── Toast ────────────────────────────────────────────────────────────────────
-let toastTimer;
+let _tTimer;
 function toast(msg) {
-  const el = document.getElementById("toast");
-  el.textContent = msg;
-  el.classList.add("show");
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => el.classList.remove("show"), 2500);
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.classList.add('show');
+  clearTimeout(_tTimer); _tTimer=setTimeout(()=>el.classList.remove('show'),2800);
 }
 
-// ─── Time formatting ──────────────────────────────────────────────────────────
-function fmt(ts) {
-  const d = new Date(ts);
-  const now = new Date();
-  const sameDay = d.toDateString() === now.toDateString();
-  if (sameDay) return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-  return d.toLocaleDateString([], { month: "short", day: "numeric" });
-}
+// ─── Screens & Modals ─────────────────────────────────────────────────────────
+function showScreen(id) { document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+function openModal(id) { document.getElementById(id).classList.add('active'); }
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+document.querySelectorAll('.modal-overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('active');}));
 
-// ─── Setup Screen ─────────────────────────────────────────────────────────────
+// ─── Setup ────────────────────────────────────────────────────────────────────
 function initSetup() {
-  const inp = document.getElementById("setup-name");
-  const btn = document.getElementById("setup-btn");
-
-  // Auto-fill if coming from a share link
-  const params = new URLSearchParams(window.location.search);
-  const autoConnectId = params.get("connect");
-  const autoConnectName = params.get("name");
-
-  btn.addEventListener("click", () => {
-    const name = inp.value.trim();
-    if (!name) { inp.focus(); return; }
-    S.myName = name;
-    lsSet("nxp_name", name);
-    initPeer(autoConnectId, autoConnectName);
+  const inp=document.getElementById('setup-name'), btn=document.getElementById('setup-btn');
+  const params=new URLSearchParams(window.location.search);
+  const acId=params.get('connect'), acName=params.get('name');
+  if (acName) document.getElementById('setup-desc').textContent=`${acName} wants to chat with you on Nexus. Enter your name to connect.`;
+  btn.addEventListener('click',()=>{
+    const name=inp.value.trim(); if (!name){inp.focus();return;}
+    S.myName=name; lsSet('nxp_name',name); initPeer(acId,acName);
   });
-  inp.addEventListener("keydown", e => { if (e.key === "Enter") btn.click(); });
+  inp.addEventListener('keydown',e=>{if(e.key==='Enter')btn.click();});
   inp.focus();
 }
 
 // ─── PeerJS ───────────────────────────────────────────────────────────────────
-function initPeer(autoConnectId, autoConnectName) {
-  const savedId = ls("nxp_peer_id", null);
-  S.peer = new Peer(savedId || undefined, {
-    config: {
-      iceServers: [
-        { urls: "stun:stun.l.google.com:19302" },
-        { urls: "stun:stun1.l.google.com:19302" },
-      ]
-    }
-  });
-
-  S.peer.on("open", id => {
-    S.myId = id;
-    lsSet("nxp_peer_id", id);
+function initPeer(autoId, autoName) {
+  const savedId=ls('nxp_peer_id',null);
+  S.peer=new Peer(savedId||undefined,{config:{iceServers:[
+    {urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'},
+  ]}});
+  S.peer.on('open',id=>{
+    S.myId=id; lsSet('nxp_peer_id',id);
     showHome();
     reconnectAll();
-    if (autoConnectId && autoConnectId !== id) {
-      addContact(autoConnectId, autoConnectName || "Friend");
-      openChat(autoConnectId);
-    }
+    if (autoId&&autoId!==id){ addContact(autoId,autoName||'Friend'); openChat(autoId); }
   });
-
-  S.peer.on("connection", conn => {
-    handleConnection(conn, true);
-  });
-
-  S.peer.on("error", err => {
-    if (err.type === "unavailable-id") {
-      // ID taken (rare), generate new one
-      localStorage.removeItem("nxp_peer_id");
-      location.reload();
-    }
-  });
+  S.peer.on('connection',conn=>handleConn(conn));
+  S.peer.on('error',err=>{ if(err.type==='unavailable-id'){localStorage.removeItem('nxp_peer_id');location.reload();} });
 }
 
-function connectToPeer(peerId) {
-  if (S.conns[peerId]?.open) return S.conns[peerId];
-  const conn = S.peer.connect(peerId, { reliable: true });
-  handleConnection(conn, false);
-  return conn;
+function connectToPeer(pid) {
+  if (S.conns[pid]?.open) return S.conns[pid];
+  const conn=S.peer.connect(pid,{reliable:true}); handleConn(conn); return conn;
 }
 
-function handleConnection(conn, isIncoming) {
-  const peerId = conn.peer;
-  S.conns[peerId] = conn;
-
-  conn.on("open", () => {
-    // Send a handshake with our name
-    conn.send({ type: "handshake", name: S.myName, id: S.myId });
-    updateContactStatus(peerId, true);
-    // Flush any queued messages
-    flushQueue(peerId);
+function handleConn(conn) {
+  const pid=conn.peer; S.conns[pid]=conn;
+  conn.on('open',()=>{
+    conn.send({type:'handshake',name:S.myName,id:S.myId,isOwner:isOwner(S.myId)});
+    updateContactStatus(pid,true); flushQueue(pid);
+    if(S.currentPeer===pid) sendReadReceipt(pid);
   });
-
-  conn.on("data", data => {
-    if (data.type === "handshake") {
-      // Ensure this person is in our contacts
-      ensureContact(peerId, data.name);
-    } else if (data.type === "msg") {
-      receiveMessage(peerId, data);
-    }
-  });
-
-  conn.on("close", () => {
-    delete S.conns[peerId];
-    updateContactStatus(peerId, false);
-  });
-
-  conn.on("error", () => {
-    delete S.conns[peerId];
-    updateContactStatus(peerId, false);
-  });
+  conn.on('data',data=>handleData(pid,data));
+  conn.on('close',()=>{ delete S.conns[pid]; updateContactStatus(pid,false); });
+  conn.on('error',()=>{ delete S.conns[pid]; updateContactStatus(pid,false); });
 }
 
-function reconnectAll() {
-  S.contacts.forEach(c => {
-    if (!S.conns[c.id]) connectToPeer(c.id);
-  });
-}
-
-// Queue messages for offline contacts
-const msgQueue = {}; // peerId → [msg]
-function queueMessage(peerId, msg) {
-  msgQueue[peerId] = msgQueue[peerId] || [];
-  msgQueue[peerId].push(msg);
-}
-function flushQueue(peerId) {
-  const q = msgQueue[peerId] || [];
-  while (q.length) {
-    const msg = q.shift();
-    try { S.conns[peerId].send(msg); } catch {}
+function handleData(pid, data) {
+  switch(data.type) {
+    case 'handshake':
+      ensureContact(pid,data.name);
+      if(data.isOwner){ const c=S.contacts.find(x=>x.id===pid); if(c){c.isOwner=true;saveContacts();renderContactList();} }
+      break;
+    case 'msg':
+      receiveMessage(pid,data); break;
+    case 'typing':
+      handleTyping(pid,data.active); break;
+    case 'read':
+      markAsRead(pid,data.lastTs); break;
+    case 'react':
+      handleReaction(pid,data); break;
+    case 'delete':
+      handleRemoteDelete(pid,data.msgId); break;
+    case 'pin':
+      handlePin(pid,data); break;
+    case 'broadcast':
+      handleBroadcast(pid,data); break;
   }
 }
 
+function reconnectAll() { S.contacts.forEach(c=>{ if(!S.conns[c.id]?.open) connectToPeer(c.id); }); }
+
+// ─── Message queue ────────────────────────────────────────────────────────────
+const _queue={};
+function queueMsg(pid,msg){ _queue[pid]=_queue[pid]||[]; _queue[pid].push(msg); }
+function flushQueue(pid){ const q=_queue[pid]||[]; while(q.length){ try{S.conns[pid].send(q.shift());}catch{} } }
+function sendToPeer(pid, data) {
+  if (S.conns[pid]?.open) { try{S.conns[pid].send(data);return;}catch{} }
+  queueMsg(pid,data); connectToPeer(pid);
+}
+
 // ─── Contacts ─────────────────────────────────────────────────────────────────
-function loadContacts() {
-  S.contacts = ls("nxp_contacts", []);
-}
-function saveContacts() {
-  lsSet("nxp_contacts", S.contacts);
-}
-function addContact(id, name) {
-  id = id.trim();
-  name = name.trim() || "Unknown";
-  if (id === S.myId) { toast("That's your own ID!"); return false; }
-  if (!S.contacts.find(c => c.id === id)) {
-    const color = colorFor(id);
-    S.contacts.push({ id, name, color });
+function loadContacts(){ S.contacts=ls('nxp_contacts',[]); }
+function saveContacts(){ lsSet('nxp_contacts',S.contacts); }
+function addContact(id,name){
+  id=String(id).trim(); name=String(name).trim()||'Unknown';
+  if(id===S.myId){toast("That's your own ID!");return false;}
+  if(!S.contacts.find(c=>c.id===id)){
+    S.contacts.push({id,name,color:colorFor(id),isOwner:isOwner(id)});
     saveContacts();
   }
   return true;
 }
-function ensureContact(peerId, name) {
-  if (!S.contacts.find(c => c.id === peerId)) {
-    const color = colorFor(peerId);
-    S.contacts.push({ id: peerId, name: name || "Unknown", color });
-    saveContacts();
-    renderContactList();
+function ensureContact(pid,name){
+  if(!S.contacts.find(c=>c.id===pid)){
+    S.contacts.push({id:pid,name:name||'Unknown',color:colorFor(pid),isOwner:isOwner(pid)});
+    saveContacts(); renderContactList();
   }
 }
 
 // ─── Home Screen ──────────────────────────────────────────────────────────────
 function showHome() {
-  loadContacts();
-  S.unread = ls("nxp_unread", {});
+  loadContacts(); S.unread=ls('nxp_unread',{}); S.pinnedMsgs=ls('nxp_pinned',{});
+  const av=document.getElementById('my-avatar');
+  av.style.background=colorFor(S.myId); av.textContent=initials(S.myName);
+  document.getElementById('my-name-label').textContent=S.myName;
 
-  // My avatar
-  const color = colorFor(S.myId);
-  const av = document.getElementById("my-avatar");
-  av.style.background = color;
-  av.textContent = initials(S.myName);
-  document.getElementById("my-name-label").textContent = S.myName;
+  const amOwner=isOwner(S.myId);
+  document.getElementById('owner-badge-home').style.display=amOwner?'':'none';
+  document.getElementById('broadcast-btn').style.display=amOwner?'':'none';
+  document.getElementById('owner-panel-btn').style.display=amOwner?'':'none';
 
   renderContactList();
-  showScreen("home");
+  showScreen('home');
 
-  document.getElementById("show-my-id-btn").onclick = openMyIdModal;
-  document.getElementById("add-friend-btn").onclick = openAddFriendModal;
-  document.getElementById("back-btn").onclick = () => { S.currentPeer = null; showScreen("home"); };
-  document.getElementById("copy-id-btn").onclick = copyId;
-  document.getElementById("share-link-btn").onclick = shareLink;
-  document.getElementById("af-connect-btn").onclick = doAddFriend;
-  document.getElementById("send-btn").onclick = sendMessage;
-  document.getElementById("chat-input").addEventListener("keydown", e => {
-    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+  document.getElementById('show-my-id-btn').onclick=openMyIdModal;
+  document.getElementById('add-friend-btn').onclick=openAddFriendModal;
+  document.getElementById('back-btn').onclick=()=>{ S.currentPeer=null; showScreen('home'); renderContactList(); };
+  document.getElementById('copy-id-btn').onclick=copyId;
+  document.getElementById('share-link-btn').onclick=shareLink;
+  document.getElementById('af-connect-btn').onclick=doAddFriend;
+  document.getElementById('send-btn').onclick=sendMessage;
+  document.getElementById('attach-btn').onclick=()=>document.getElementById('file-input').click();
+  document.getElementById('file-input').onchange=handleFileSelect;
+  document.getElementById('broadcast-btn').onclick=()=>openModal('broadcast-overlay');
+  document.getElementById('do-broadcast-btn').onclick=doBroadcast;
+  document.getElementById('owner-panel-btn').onclick=openOwnerPanel;
+
+  const ci=document.getElementById('chat-input');
+  ci.addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();} });
+  ci.addEventListener('input',function(){
+    this.style.height='auto'; this.style.height=Math.min(this.scrollHeight,120)+'px';
+    handleMyTyping();
   });
-  document.getElementById("chat-input").addEventListener("input", function() {
-    this.style.height = "auto";
-    this.style.height = Math.min(this.scrollHeight, 120) + "px";
-  });
+  document.addEventListener('click',hideReactionPicker);
 }
 
 function renderContactList() {
-  const wrap = document.getElementById("contact-list-wrap");
-  const empty = document.getElementById("empty-home");
-
-  if (S.contacts.length === 0) {
-    wrap.style.display = "none";
-    empty.style.display = "flex";
-    return;
-  }
-
-  wrap.style.display = "block";
-  empty.style.display = "none";
-
-  wrap.innerHTML = S.contacts.map(c => {
-    const msgs = loadMessages(c.id);
-    const last = msgs[msgs.length - 1];
-    const isOnline = !!S.conns[c.id]?.open;
-    const unread = S.unread[c.id] || 0;
-    return `
-      <div class="contact-item ${S.currentPeer === c.id ? 'active' : ''}" data-id="${c.id}">
-        <div class="avatar" style="background:${c.color};">
-          ${initials(c.name)}
-          <span class="avatar-badge ${isOnline ? 'online' : ''}"></span>
-        </div>
-        <div class="contact-info">
-          <div class="contact-name">${escHtml(c.name)}</div>
-          <div class="contact-preview">${last ? escHtml(last.text.slice(0, 60)) : '<span style="font-style:italic;color:#444">No messages yet</span>'}</div>
-        </div>
-        <div class="contact-meta">
-          ${last ? `<div class="contact-time">${fmt(last.ts)}</div>` : ''}
-          ${unread ? `<div class="unread-badge">${unread}</div>` : ''}
-        </div>
-      </div>`;
-  }).join("");
-
-  wrap.querySelectorAll(".contact-item").forEach(el => {
-    el.addEventListener("click", () => openChat(el.dataset.id));
+  const wrap=document.getElementById('contact-list-wrap'), empty=document.getElementById('empty-home');
+  if(!S.contacts.length){ wrap.style.display='none'; empty.style.display='flex'; return; }
+  wrap.style.display='block'; empty.style.display='none';
+  // Sort: online first, then by last message time
+  const sorted=[...S.contacts].sort((a,b)=>{
+    const ao=!!S.conns[a.id]?.open, bo=!!S.conns[b.id]?.open;
+    if(ao!==bo) return ao?-1:1;
+    const am=loadMsgs(a.id), bm=loadMsgs(b.id);
+    return (bm[bm.length-1]?.ts||0)-(am[am.length-1]?.ts||0);
   });
-}
-
-function updateContactStatus(peerId, online) {
-  if (S.currentPeer === peerId) {
-    const status = document.getElementById("chat-peer-status");
-    const banner = document.getElementById("connecting-banner");
-    status.textContent = online ? "Online" : "Offline";
-    status.className = "chat-header-status" + (online ? " online" : "");
-    banner.classList.toggle("visible", !online);
-  }
-  renderContactList();
+  wrap.innerHTML=sorted.map(c=>{
+    const msgs=loadMsgs(c.id), last=msgs.filter(m=>!m.deleted)[msgs.length-1];
+    const online=!!S.conns[c.id]?.open, unread=S.unread[c.id]||0;
+    const lastText=last?(last.fileData?(last.fileMime?.startsWith('image/'))?'📷 Image':'📎 File':esc(last.text.slice(0,55))):'<i>No messages yet</i>';
+    return `<div class="contact-item" data-id="${esc(c.id)}">
+      <div class="avatar" style="background:${c.color}">${esc(initials(c.name))}<span class="avatar-badge ${online?'online':''}"></span></div>
+      <div class="contact-info">
+        <div class="contact-name-row"><span class="contact-name">${esc(c.name)}</span>${c.isOwner?'<span class="crown" title="Owner">👑</span>':''}</div>
+        <div class="contact-preview">${lastText}</div>
+      </div>
+      <div class="contact-meta">${last?`<div class="contact-time">${fmt(last.ts)}</div>`:''}${unread?`<div class="unread-badge">${unread}</div>`:''}</div>
+    </div>`;
+  }).join('');
+  wrap.querySelectorAll('.contact-item').forEach(el=>el.addEventListener('click',()=>openChat(el.dataset.id)));
 }
 
 // ─── Chat Screen ──────────────────────────────────────────────────────────────
-function openChat(peerId) {
-  S.currentPeer = peerId;
-  const contact = S.contacts.find(c => c.id === peerId);
-  if (!contact) return;
-
-  // Clear unread
-  S.unread[peerId] = 0;
-  lsSet("nxp_unread", S.unread);
-  renderContactList();
-
-  // Header
-  const av = document.getElementById("chat-avatar");
-  av.style.background = contact.color;
-  av.textContent = initials(contact.name);
-  document.getElementById("chat-peer-name").textContent = contact.name;
-
-  const isOnline = !!S.conns[peerId]?.open;
-  const status = document.getElementById("chat-peer-status");
-  status.textContent = isOnline ? "Online" : "Connecting…";
-  status.className = "chat-header-status" + (isOnline ? " online" : "");
-  document.getElementById("connecting-banner").classList.toggle("visible", !isOnline);
-
-  renderMessages(peerId);
-  showScreen("chat");
-  document.getElementById("chat-input").focus();
-
-  // Try to connect if not already
-  if (!isOnline) connectToPeer(peerId);
+function openChat(pid) {
+  S.currentPeer=pid;
+  const c=S.contacts.find(x=>x.id===pid); if(!c)return;
+  S.unread[pid]=0; lsSet('nxp_unread',S.unread); renderContactList();
+  const av=document.getElementById('chat-avatar');
+  av.style.background=c.color; av.textContent=initials(c.name);
+  const nameEl=document.getElementById('chat-peer-name');
+  nameEl.innerHTML=esc(c.name)+(c.isOwner?' <span title="Owner">👑</span>':'');
+  const online=!!S.conns[pid]?.open;
+  const st=document.getElementById('chat-peer-status');
+  st.textContent=online?'Online':'Connecting…'; st.className='chat-header-status'+(online?' online':'');
+  document.getElementById('connecting-banner').classList.toggle('visible',!online);
+  // Pinned message
+  const pin=S.pinnedMsgs[pid];
+  const pb=document.getElementById('pinned-banner');
+  if(pin){ pb.classList.add('visible'); document.getElementById('pinned-text').textContent=pin.text; }
+  else pb.classList.remove('visible');
+  renderMessages();
+  showScreen('chat');
+  document.getElementById('chat-input').focus();
+  if(!online) connectToPeer(pid);
+  if(online) sendReadReceipt(pid);
 }
 
-function renderMessages(peerId) {
-  const msgs = loadMessages(peerId);
-  const container = document.getElementById("messages");
-  container.innerHTML = "";
-
-  let lastDay = null;
-  msgs.forEach(msg => {
-    const day = new Date(msg.ts).toDateString();
-    if (day !== lastDay) {
-      const label = document.createElement("div");
-      label.className = "day-label";
-      label.textContent = new Date(msg.ts).toLocaleDateString([], { weekday: "long", month: "long", day: "numeric" });
-      container.appendChild(label);
-      lastDay = day;
+function renderMessages() {
+  const pid=S.currentPeer; if(!pid)return;
+  const msgs=loadMsgs(pid), container=document.getElementById('messages');
+  container.innerHTML='';
+  let lastDay=null;
+  msgs.forEach(msg=>{
+    const day=new Date(msg.ts).toDateString();
+    if(day!==lastDay){
+      const l=document.createElement('div'); l.className='day-label';
+      l.textContent=new Date(msg.ts).toLocaleDateString([],{weekday:'long',month:'long',day:'numeric'});
+      container.appendChild(l); lastDay=day;
     }
-
-    const isMine = msg.from === S.myId;
-    const group = document.createElement("div");
-    group.className = `msg-group ${isMine ? "mine" : "theirs"}`;
-
-    const bubble = document.createElement("div");
-    bubble.className = `msg ${isMine ? "mine" : "theirs"}`;
-    bubble.textContent = msg.text;
-
-    const meta = document.createElement("div");
-    meta.className = "msg-meta";
-    meta.textContent = fmt(msg.ts);
-
-    group.appendChild(bubble);
-    group.appendChild(meta);
-    container.appendChild(group);
+    const isMine=msg.from===S.myId;
+    const group=document.createElement('div');
+    group.className=`msg-group ${isMine?'mine':'theirs'}`;
+    const wrap=document.createElement('div'); wrap.className='msg-bubble-wrap';
+    const bubble=document.createElement('div');
+    bubble.className='msg '+(isMine?'mine':'theirs')+(msg.deleted?' deleted':'')+(msg.broadcast?' owner-broadcast':'');
+    bubble.dataset.msgId=msg.id;
+    if(msg.deleted){ bubble.textContent='🗑 Message deleted'; }
+    else if(msg.fileData){
+      if(msg.fileMime?.startsWith('image/')){ const img=document.createElement('img'); img.className='msg-img'; img.src=msg.fileData; img.onclick=e=>{e.stopPropagation();viewImg(msg.fileData);}; bubble.appendChild(img); if(msg.text){const t=document.createElement('div');t.style.marginTop='6px';t.textContent=msg.text;bubble.appendChild(t);} }
+      else { bubble.innerHTML=`<div class="msg-file"><span class="msg-file-icon">📎</span><a class="msg-file-name" href="${esc(msg.fileData)}" download="${esc(msg.fileName||'file')}" style="color:inherit">${esc(msg.fileName||'File')}</a></div>`; }
+    } else { bubble.textContent=msg.text; }
+    if(!msg.deleted){
+      bubble.addEventListener('click',e=>{e.stopPropagation();showReactionPicker(msg.id,isMine,e.currentTarget);});
+    }
+    wrap.appendChild(bubble);
+    // Reactions
+    if(msg.reactions&&Object.keys(msg.reactions).length){
+      const row=document.createElement('div'); row.className='reactions-row';
+      Object.entries(msg.reactions).forEach(([emoji,pids])=>{
+        if(!pids.length)return;
+        const chip=document.createElement('span');
+        chip.className='reaction-chip'+(pids.includes(S.myId)?' mine':'');
+        chip.innerHTML=`${emoji}<span class="reaction-count">${pids.length>1?pids.length:''}</span>`;
+        chip.onclick=e=>{e.stopPropagation();toggleReaction(msg.id,emoji);};
+        row.appendChild(chip);
+      });
+      wrap.appendChild(row);
+    }
+    // Meta
+    const meta=document.createElement('div'); meta.className='msg-meta';
+    meta.innerHTML=`<span>${fmt(msg.ts)}</span>${isMine?`<span class="tick ${msg.read?'read':''}">${msg.read?'✓✓':'✓'}</span>`:''}`;
+    group.appendChild(wrap); group.appendChild(meta); container.appendChild(group);
   });
-
-  container.scrollTop = container.scrollHeight;
+  container.scrollTop=container.scrollHeight;
 }
 
-function receiveMessage(peerId, data) {
-  const msg = { from: peerId, text: data.text, ts: data.ts };
-  saveMessage(peerId, msg);
-
-  if (S.currentPeer === peerId && document.getElementById("chat").classList.contains("active")) {
-    renderMessages(peerId);
-  } else {
-    S.unread[peerId] = (S.unread[peerId] || 0) + 1;
-    lsSet("nxp_unread", S.unread);
-    renderContactList();
-    // Flash document title
-    document.title = `(${Object.values(S.unread).reduce((a, b) => a + b, 0)}) Nexus P2P`;
-  }
+function receiveMessage(pid, data) {
+  const msg={id:data.id,from:pid,text:data.text||'',fileData:data.fileData,fileName:data.fileName,fileMime:data.fileMime,ts:data.ts,reactions:{},broadcast:data.broadcast};
+  saveMsg(pid,msg);
+  const inChat=S.currentPeer===pid&&document.getElementById('chat').classList.contains('active');
+  if(inChat){ renderMessages(); sendReadReceipt(pid); }
+  else { S.unread[pid]=(S.unread[pid]||0)+1; lsSet('nxp_unread',S.unread); renderContactList(); const u=Object.values(S.unread).reduce((a,b)=>a+b,0); document.title=u?`(${u}) Nexus P2P`:'Nexus P2P'; }
 }
 
 function sendMessage() {
-  const inp = document.getElementById("chat-input");
-  const text = inp.value.trim();
-  if (!text || !S.currentPeer) return;
+  const inp=document.getElementById('chat-input'), text=inp.value.trim();
+  if(!text||!S.currentPeer)return;
+  const msg={type:'msg',id:genId(),text,ts:Date.now()};
+  saveMsg(S.currentPeer,{...msg,from:S.myId,reactions:{}});
+  renderMessages(); inp.value=''; inp.style.height='auto';
+  stopMyTyping();
+  sendToPeer(S.currentPeer,msg);
+}
 
-  const msg = { type: "msg", text, ts: Date.now() };
-  saveMessage(S.currentPeer, { from: S.myId, text, ts: msg.ts });
-  renderMessages(S.currentPeer);
-  inp.value = "";
-  inp.style.height = "auto";
+// ─── Typing Indicators ────────────────────────────────────────────────────────
+function handleMyTyping() {
+  if(!S.typingActive){ S.typingActive=true; sendToPeer(S.currentPeer,{type:'typing',active:true}); }
+  clearTimeout(S.myTypingTimer);
+  S.myTypingTimer=setTimeout(stopMyTyping,2500);
+}
+function stopMyTyping() {
+  if(S.typingActive&&S.currentPeer){ sendToPeer(S.currentPeer,{type:'typing',active:false}); }
+  S.typingActive=false; clearTimeout(S.myTypingTimer);
+}
+function handleTyping(pid, active) {
+  if(S.currentPeer!==pid)return;
+  const el=document.getElementById('typing-indicator');
+  document.getElementById('typing-name').textContent=S.contacts.find(c=>c.id===pid)?.name||'';
+  el.classList.toggle('visible',active);
+  clearTimeout(S.typingTimers[pid]);
+  if(active) S.typingTimers[pid]=setTimeout(()=>el.classList.remove('visible'),4000);
+}
 
-  const conn = S.conns[S.currentPeer];
-  if (conn?.open) {
-    conn.send(msg);
-  } else {
-    queueMessage(S.currentPeer, msg);
-    connectToPeer(S.currentPeer);
-    toast("Queued — will send when they come online");
+// ─── Read Receipts ────────────────────────────────────────────────────────────
+function sendReadReceipt(pid) {
+  const msgs=loadMsgs(pid); const last=msgs[msgs.length-1];
+  if(last) sendToPeer(pid,{type:'read',lastTs:last.ts});
+}
+function markAsRead(pid, lastTs) {
+  const msgs=loadMsgs(pid); let changed=false;
+  msgs.forEach(m=>{ if(m.from===S.myId&&m.ts<=lastTs&&!m.read){ m.read=true; changed=true; } });
+  if(changed){ saveMsgs(pid,msgs); if(S.currentPeer===pid) renderMessages(); }
+}
+
+// ─── Reactions ────────────────────────────────────────────────────────────────
+let _pickerMsgId=null, _pickerMine=false;
+function showReactionPicker(msgId, isMine, bubbleEl) {
+  _pickerMsgId=msgId; _pickerMine=isMine;
+  const picker=document.getElementById('reaction-picker');
+  picker.innerHTML='';
+  EMOJIS.forEach(e=>{ const s=document.createElement('span'); s.className='rp-emoji'; s.textContent=e; s.onclick=ev=>{ev.stopPropagation();toggleReaction(msgId,e);hideReactionPicker();}; picker.appendChild(s); });
+  // Separator
+  const sep=document.createElement('div'); sep.className='rp-sep'; picker.appendChild(sep);
+  // Delete action
+  const canDelete=isMine||isOwner(S.myId);
+  if(canDelete){ const d=document.createElement('span'); d.className='rp-action danger'; d.innerHTML='🗑 Delete'; d.onclick=ev=>{ev.stopPropagation();deleteMessage(msgId);hideReactionPicker();}; picker.appendChild(d); }
+  // Pin action (owner only)
+  if(isOwner(S.myId)){ const p=document.createElement('span'); p.className='rp-action'; p.innerHTML='📌 Pin'; p.onclick=ev=>{ev.stopPropagation();pinMessage(msgId);hideReactionPicker();}; picker.appendChild(p); }
+  const rect=bubbleEl.getBoundingClientRect();
+  picker.style.left=`${Math.min(rect.left, window.innerWidth-230)}px`;
+  picker.style.top=`${rect.top>200?rect.top-10-picker.offsetHeight||150:rect.bottom+10}px`;
+  picker.classList.add('visible');
+  // Reposition after render
+  requestAnimationFrame(()=>{
+    picker.style.top=`${rect.top>200?rect.top-10-picker.offsetHeight:rect.bottom+10}px`;
+  });
+}
+function hideReactionPicker(){ document.getElementById('reaction-picker').classList.remove('visible'); }
+function toggleReaction(msgId, emoji) {
+  const pid=S.currentPeer; if(!pid)return;
+  const msgs=loadMsgs(pid), msg=msgs.find(m=>m.id===msgId); if(!msg)return;
+  msg.reactions=msg.reactions||{};
+  msg.reactions[emoji]=msg.reactions[emoji]||[];
+  const idx=msg.reactions[emoji].indexOf(S.myId);
+  const remove=idx>=0;
+  if(remove) msg.reactions[emoji].splice(idx,1); else msg.reactions[emoji].push(S.myId);
+  saveMsgs(pid,msgs); renderMessages();
+  sendToPeer(pid,{type:'react',msgId,emoji,remove});
+}
+function handleReaction(pid, data) {
+  const msgs=loadMsgs(pid), msg=msgs.find(m=>m.id===data.msgId); if(!msg)return;
+  msg.reactions=msg.reactions||{};
+  msg.reactions[data.emoji]=msg.reactions[data.emoji]||[];
+  if(data.remove){ const i=msg.reactions[data.emoji].indexOf(pid); if(i>=0)msg.reactions[data.emoji].splice(i,1); }
+  else if(!msg.reactions[data.emoji].includes(pid)) msg.reactions[data.emoji].push(pid);
+  saveMsgs(pid,msgs);
+  if(S.currentPeer===pid) renderMessages();
+}
+
+// ─── Delete Message ───────────────────────────────────────────────────────────
+function deleteMessage(msgId) {
+  const pid=S.currentPeer; if(!pid)return;
+  updateMsg(pid,msgId,{deleted:true,text:''}); renderMessages();
+  sendToPeer(pid,{type:'delete',msgId});
+}
+function handleRemoteDelete(pid, msgId) {
+  updateMsg(pid,msgId,{deleted:true,text:''});
+  if(S.currentPeer===pid) renderMessages();
+}
+
+// ─── Pin Message ──────────────────────────────────────────────────────────────
+function pinMessage(msgId) {
+  const pid=S.currentPeer; if(!pid||!isOwner(S.myId))return;
+  const msgs=loadMsgs(pid), msg=msgs.find(m=>m.id===msgId); if(!msg)return;
+  const text=msg.text||'(image)';
+  S.pinnedMsgs[pid]={id:msgId,text}; lsSet('nxp_pinned',S.pinnedMsgs);
+  document.getElementById('pinned-banner').classList.add('visible');
+  document.getElementById('pinned-text').textContent=text;
+  sendToPeer(pid,{type:'pin',msgId,text});
+  toast('📌 Message pinned');
+}
+function handlePin(pid, data) {
+  S.pinnedMsgs[pid]={id:data.msgId,text:data.text}; lsSet('nxp_pinned',S.pinnedMsgs);
+  if(S.currentPeer===pid){
+    document.getElementById('pinned-banner').classList.add('visible');
+    document.getElementById('pinned-text').textContent=data.text;
   }
+}
+
+// ─── File Sharing ─────────────────────────────────────────────────────────────
+function handleFileSelect(e) {
+  const file=e.target.files[0]; if(!file||!S.currentPeer)return;
+  e.target.value='';
+  if(file.size>5*1024*1024){toast('File too large (max 5 MB)');return;}
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    const fileData=ev.target.result;
+    const msgObj={type:'msg',id:genId(),text:'',fileData,fileName:file.name,fileMime:file.type,ts:Date.now()};
+    saveMsg(S.currentPeer,{...msgObj,from:S.myId,reactions:{}}); renderMessages();
+    sendToPeer(S.currentPeer,msgObj);
+  };
+  reader.readAsDataURL(file);
+}
+function viewImg(src){ const v=document.getElementById('img-viewer'); document.getElementById('img-viewer-img').src=src; v.classList.add('active'); }
+
+// ─── Owner: Broadcast ─────────────────────────────────────────────────────────
+function doBroadcast() {
+  if(!isOwner(S.myId))return;
+  const text=document.getElementById('broadcast-text').value.trim(); if(!text)return;
+  const data={type:'msg',id:genId(),text,ts:Date.now(),broadcast:true};
+  S.contacts.forEach(c=>{
+    saveMsg(c.id,{...data,from:S.myId,reactions:{}}); sendToPeer(c.id,data);
+  });
+  document.getElementById('broadcast-text').value=''; closeModal('broadcast-overlay');
+  toast(`📢 Broadcast sent to ${S.contacts.length} contacts`);
+  if(S.currentPeer) renderMessages();
+}
+
+// ─── Owner: Panel ─────────────────────────────────────────────────────────────
+function openOwnerPanel() {
+  const total=S.contacts.length, online=S.contacts.filter(c=>S.conns[c.id]?.open).length;
+  let allMsgs=0; S.contacts.forEach(c=>allMsgs+=loadMsgs(c.id).length);
+  document.getElementById('stats-grid').innerHTML=`
+    <div class="stat-box"><div class="stat-num">${total}</div><div class="stat-label">Contacts</div></div>
+    <div class="stat-box"><div class="stat-num" style="color:var(--online)">${online}</div><div class="stat-label">Online Now</div></div>
+    <div class="stat-box"><div class="stat-num">${allMsgs}</div><div class="stat-label">Total Messages</div></div>
+    <div class="stat-box"><div class="stat-num" style="color:var(--owner)">⭐</div><div class="stat-label">Owner</div></div>`;
+  document.getElementById('peer-list').innerHTML=S.contacts.map(c=>{
+    const on=!!S.conns[c.id]?.open;
+    return `<div class="peer-row"><div class="peer-row-dot" style="background:${on?'var(--online)':'var(--muted)'}"></div><span class="peer-row-name">${esc(c.name)}</span><span class="peer-row-id">${esc(c.id.slice(-8))}</span></div>`;
+  }).join('');
+  openModal('owner-panel-overlay');
 }
 
 // ─── My ID Modal ──────────────────────────────────────────────────────────────
 function openMyIdModal() {
-  document.getElementById("my-peer-id-display").textContent = S.myId;
-  document.getElementById("my-id-overlay").classList.add("active");
-  QRCode.toCanvas(document.getElementById("qr-canvas"), S.myId, {
-    width: 200, margin: 2,
-    color: { dark: "#ffffff", light: "#1e1e28" }
-  });
+  document.getElementById('my-peer-id-display').textContent=S.myId;
+  openModal('my-id-overlay');
+  QRCode.toCanvas(document.getElementById('qr-canvas'),S.myId,{width:200,margin:2,color:{dark:'#ffffff',light:'#1e1e28'}});
 }
-function closeMyIdModal() { document.getElementById("my-id-overlay").classList.remove("active"); }
-document.getElementById("my-id-overlay").addEventListener("click", e => { if (e.target === e.currentTarget) closeMyIdModal(); });
-
-function copyId() {
-  navigator.clipboard.writeText(S.myId).then(() => {
-    const btn = document.getElementById("copy-id-btn");
-    btn.textContent = "Copied!";
-    setTimeout(() => btn.textContent = "Copy", 2000);
-  });
+function copyId(){ navigator.clipboard.writeText(S.myId).then(()=>{ const b=document.getElementById('copy-id-btn'); b.textContent='Copied!'; setTimeout(()=>b.textContent='Copy',2000); }); }
+function shareLink(){
+  const url=`${location.href.split('?')[0]}?connect=${S.myId}&name=${encodeURIComponent(S.myName)}`;
+  if(navigator.share) navigator.share({title:'Chat with me on Nexus',url});
+  else navigator.clipboard.writeText(url).then(()=>toast('Link copied!'));
 }
 
-function shareLink() {
-  const url = `${location.href.split("?")[0]}?connect=${S.myId}&name=${encodeURIComponent(S.myName)}`;
-  if (navigator.share) {
-    navigator.share({ title: "Chat with me on Nexus", url });
-  } else {
-    navigator.clipboard.writeText(url).then(() => toast("Link copied to clipboard!"));
+// ─── Add Friend ───────────────────────────────────────────────────────────────
+function openAddFriendModal(){ openModal('add-friend-overlay'); }
+function doAddFriend(){
+  const id=document.getElementById('af-peer-id').value.trim();
+  const name=document.getElementById('af-name').value.trim()||'Friend';
+  if(!id){document.getElementById('af-peer-id').focus();return;}
+  if(addContact(id,name)){ closeModal('add-friend-overlay'); renderContactList(); openChat(id); }
+  document.getElementById('af-peer-id').value=''; document.getElementById('af-name').value='';
+}
+
+// ─── Contact status update ────────────────────────────────────────────────────
+function updateContactStatus(pid, online) {
+  if(S.currentPeer===pid){
+    const st=document.getElementById('chat-peer-status');
+    st.textContent=online?'Online':'Offline'; st.className='chat-header-status'+(online?' online':'');
+    document.getElementById('connecting-banner').classList.toggle('visible',!online);
+    if(online) sendReadReceipt(pid);
   }
-}
-
-// ─── Add Friend Modal ─────────────────────────────────────────────────────────
-function openAddFriendModal() { document.getElementById("add-friend-overlay").classList.add("active"); }
-function closeAddFriendModal() {
-  document.getElementById("add-friend-overlay").classList.remove("active");
-  document.getElementById("af-peer-id").value = "";
-  document.getElementById("af-name").value = "";
-}
-document.getElementById("add-friend-overlay").addEventListener("click", e => { if (e.target === e.currentTarget) closeAddFriendModal(); });
-
-function doAddFriend() {
-  const id = document.getElementById("af-peer-id").value.trim();
-  const name = document.getElementById("af-name").value.trim() || "Friend";
-  if (!id) { document.getElementById("af-peer-id").focus(); return; }
-  if (addContact(id, name)) {
-    closeAddFriendModal();
-    renderContactList();
-    openChat(id);
-  }
-}
-
-// ─── Utils ────────────────────────────────────────────────────────────────────
-function escHtml(s) {
-  return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  renderContactList();
 }
 
 // ─── Boot ─────────────────────────────────────────────────────────────────────
-(function boot() {
-  const name = ls("nxp_name", null);
-  const params = new URLSearchParams(window.location.search);
-  const autoConnectId = params.get("connect");
-  const autoConnectName = params.get("name");
-
-  if (name) {
-    S.myName = name;
-    initPeer(autoConnectId, autoConnectName);
-  } else {
-    showScreen("setup");
-    initSetup();
-    if (autoConnectId) {
-      // Pre-fill the setup screen to let them know why they're here
-      const p = document.querySelector("#setup .setup-card p");
-      if (p) p.textContent = `${autoConnectName || "Someone"} wants to chat with you on Nexus. Enter your name to connect.`;
-    }
-  }
+(function boot(){
+  const name=ls('nxp_name',null);
+  const params=new URLSearchParams(window.location.search);
+  const acId=params.get('connect'), acName=params.get('name');
+  if(name){ S.myName=name; initPeer(acId,acName); }
+  else{ showScreen('setup'); initSetup(); }
 })();
 </script>
 </body>
