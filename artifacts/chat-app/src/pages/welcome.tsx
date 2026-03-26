@@ -68,7 +68,7 @@ export default function WelcomePage() {
           transition={{ duration: 0.6 }}
           className="relative z-10"
         >
-          <NexusLogo size={42} />
+          <NexusLogo size={42} animated />
         </motion.div>
 
         <motion.div
@@ -147,7 +147,7 @@ export default function WelcomePage() {
           className="w-full max-w-md"
         >
           <div className="lg:hidden flex justify-center mb-8">
-            <NexusLogo size={44} />
+            <NexusLogo size={44} animated />
           </div>
 
           <motion.div
